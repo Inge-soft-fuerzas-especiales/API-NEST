@@ -9,6 +9,7 @@ import { PostController } from './post.controller';
 import { OfferController } from './offer.controller';
 import { PostService } from './post.service';
 import { OfferService } from './offer.service';
+import { AuthzModule } from './authz.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { OfferService } from './offer.service';
       synchronize: true,
     }),
     TypeOrmModule.forFeature([Category, Post, Offer]),
+    AuthzModule,
   ],
   controllers: [CategoryController, PostController, OfferController],
   providers: [CategoryService, PostService, OfferService],

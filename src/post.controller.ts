@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { Post as _Post } from './post.entity';
 import { PostService } from './post.service';
 import { CreatePostDto } from './create-post.dto';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
