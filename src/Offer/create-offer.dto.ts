@@ -1,10 +1,10 @@
 import { DeepPartial } from 'typeorm';
-import { Post } from './post.entity';
+import { Post } from '../Post/post.entity';
+import { Business } from '../Business/business.entity';
 
 export class CreateOfferDto {
-  owner_id: number;
+  business: DeepPartial<Business>;
   post: DeepPartial<Post>;
-  budget: number;
   price: number;
   additional_information: string;
 }

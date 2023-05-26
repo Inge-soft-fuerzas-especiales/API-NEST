@@ -1,15 +1,20 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Category } from './category.entity';
-import { CategoryController } from './category.controller';
-import { CategoryService } from './category.service';
-import { Post } from './post.entity';
-import { Offer } from './offer.entity';
-import { PostController } from './post.controller';
-import { OfferController } from './offer.controller';
-import { PostService } from './post.service';
-import { OfferService } from './offer.service';
-import { AuthzModule } from './authz.module';
+import { Category } from './Category/category.entity';
+import { CategoryController } from './Category/category.controller';
+import { CategoryService } from './Category/category.service';
+import { Post } from './Post/post.entity';
+import { Offer } from './Offer/offer.entity';
+import { PostController } from './Post/post.controller';
+import { OfferController } from './Offer/offer.controller';
+import { PostService } from './Post/post.service';
+import { OfferService } from './Offer/offer.service';
+import { Business } from './Business/business.entity';
+import { Membership } from './Membership/memebership.entity';
+import { User } from './User/user.entity';
+import { PassportModule } from '@nestjs/passport';
+import { JwtStrategy } from './Authz/jwt.strategy';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -20,13 +25,26 @@ import { AuthzModule } from './authz.module';
       username: 'ingesoftadmin',
       password: 'tequeremosbotti<3',
       database: 'IngeSoft-FuerzasEspeciales',
-      entities: [Category, Post, Offer],
+      entities: [Business, Category, Membership, Offer, Post, User],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([Category, Post, Offer]),
-    AuthzModule,
+    TypeOrmModule.forFeature([
+      Business,
+      Category,
+      Membership,
+      Offer,
+      Post,
+      User,
+    ]),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   controllers: [CategoryController, PostController, OfferController],
-  providers: [CategoryService, PostService, OfferService],
+  providers: [
+    CategoryService,
+    PostService,
+    OfferService,
+    JwtService,
+    JwtStrategy,
+  ],
 })
 export class AppModule {}

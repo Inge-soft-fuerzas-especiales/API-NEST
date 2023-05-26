@@ -15,7 +15,7 @@ export class OfferService {
     return this.offerRepository.find({
       where: {
         post: {
-          post_id: post_id,
+          id: post_id,
         },
       },
     });
