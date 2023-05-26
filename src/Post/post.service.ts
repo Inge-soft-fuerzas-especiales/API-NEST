@@ -15,6 +15,10 @@ export class PostService {
     return this.postRepository.find();
   }
 
+  getByBusiness(business_id: number): Promise<Post[]> {
+    return this.postRepository.findBy({ business: { id: business_id } });
+  }
+
   createPost(postData: CreatePostDto): Promise<Post> {
     const newPost = this.postRepository.create(postData);
     return this.postRepository.save(newPost);

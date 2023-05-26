@@ -15,6 +15,8 @@ import { User } from './User/user.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './Authz/jwt.strategy';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from './User/user.service';
+import { AuthzService } from './Authz/authz.service';
 
 @Module({
   imports: [
@@ -45,6 +47,8 @@ import { JwtService } from '@nestjs/jwt';
     OfferService,
     JwtService,
     JwtStrategy,
+    UserService,
+    AuthzService,
   ],
 })
 export class AppModule {}

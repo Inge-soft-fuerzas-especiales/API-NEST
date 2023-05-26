@@ -7,10 +7,15 @@ import { User } from './user.entity';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private categoryRepository: Repository<User>,
+    private userRepository: Repository<User>,
   ) {}
 
-  get(id: number): Promise<User> {
-    return this.categoryRepository.findOneBy({ id: id });
+  add(authz_id: string): Promise<User> {
+    const newUser = this.userRepository.create({ authz_id: authz_id });
+    return this.userRepository.save(newUser);
+  }
+
+  getByAuthzId(authz_id: string): Promise<User> {
+    return this.userRepository.findOneBy({ authz_id: authz_id });
   }
 }
