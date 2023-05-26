@@ -11,7 +11,7 @@ export class OfferService {
     private offerRepository: Repository<Offer>,
   ) {}
 
-  findOffersWithPost(post_id: number): Promise<Offer[]> {
+  getOffersByPost(post_id: number): Promise<Offer[]> {
     return this.offerRepository.find({
       where: {
         post: {

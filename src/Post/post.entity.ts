@@ -25,7 +25,7 @@ export class Post {
   @OneToMany(() => Offer, (offer) => offer.post)
   offers: Offer[];
 
-  @ManyToOne(() => Category, (category) => category.posts, {
+  @ManyToOne(() => Category, {
     nullable: true,
     onDelete: 'SET NULL',
   })

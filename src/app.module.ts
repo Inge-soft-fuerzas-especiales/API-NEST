@@ -17,6 +17,7 @@ import { JwtStrategy } from './Authz/jwt.strategy';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from './User/user.service';
 import { AuthzService } from './Authz/authz.service';
+import { BusinessService } from './Business/business.service';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { AuthzService } from './Authz/authz.service';
     JwtStrategy,
     UserService,
     AuthzService,
+    BusinessService,
   ],
 })
 export class AppModule {}
