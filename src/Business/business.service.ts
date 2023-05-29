@@ -7,10 +7,13 @@ import { Business } from './business.entity';
 export class BusinessService {
   constructor(
     @InjectRepository(Business)
-    private categoryRepository: Repository<Business>,
+    private businessRepository: Repository<Business>,
   ) {}
 
   getByOwner(owner_id: number): Promise<Business> {
-    return this.categoryRepository.findOneBy({ owner: { id: owner_id } });
+    return this.businessRepository.findOne({
+      where: { owner: { id: owner_id } },
+      relations: ['owner', 'membership'],
+    });
   }
 }

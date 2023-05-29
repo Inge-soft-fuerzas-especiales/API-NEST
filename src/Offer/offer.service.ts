@@ -18,6 +18,7 @@ export class OfferService {
           id: post_id,
         },
       },
+      relations: ['business'],
     });
   }
 

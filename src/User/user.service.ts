@@ -16,6 +16,9 @@ export class UserService {
   }
 
   getByAuthzId(authz_id: string): Promise<User> {
-    return this.userRepository.findOneBy({ authz_id: authz_id });
+    return this.userRepository.findOne({
+      where: { authz_id: authz_id },
+      relations: ['employed_at', 'owns'],
+    });
   }
 }

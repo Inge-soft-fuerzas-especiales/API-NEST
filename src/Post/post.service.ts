@@ -16,7 +16,10 @@ export class PostService {
   }
 
   getByBusiness(business_id: number): Promise<Post[]> {
-    return this.postRepository.findBy({ business: { id: business_id } });
+    return this.postRepository.find({
+      where: { business: { id: business_id } },
+      relations: ['category'],
+    });
   }
 
   createPost(postData: CreatePostDto): Promise<Post> {
