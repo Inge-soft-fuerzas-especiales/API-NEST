@@ -9,4 +9,5 @@ export class CreatePostDto {
   description: string;
   budget_min: number;
   budget_max: number;
+  deadline: Date;
 }
