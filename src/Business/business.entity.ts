@@ -4,6 +4,7 @@ import {
   OneToMany,
   OneToOne,
   JoinColumn,
+  Column,
 } from 'typeorm';
 import { User } from '../User/user.entity';
 import { Post } from '../Post/post.entity';
@@ -28,6 +29,12 @@ export class Business {
   })
   @JoinColumn({ name: 'user_id' })
   owner: User;
+
+  @Column({ unique: true })
+  name: string;
+
+  @Column()
+  cuit: number;
 
   @OneToMany(() => User, (user) => user.employed_at)
   employees: User[];
