@@ -16,6 +16,9 @@ export class User {
   @Column({ unique: true })
   authz_id: string;
 
+  @Column({ nullable: true })
+  dni: number;
+
   @ManyToOne(() => Business, (business) => business.employees, {
     nullable: true,
     onDelete: 'SET NULL',
