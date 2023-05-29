@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { Category } from './category.entity';
 import { AuthGuard } from '@nestjs/passport';
@@ -11,5 +11,10 @@ export class CategoryController {
   @Get()
   getAll(): Promise<Category[]> {
     return this.categoryService.getAll();
+  }
+
+  @Get(':category_id')
+  getById(@Param('category_id') category_id: number): Promise<Category> {
+    return this.categoryService.getById(category_id);
   }
 }

@@ -18,6 +18,10 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from './User/user.service';
 import { AuthzService } from './Authz/authz.service';
 import { BusinessService } from './Business/business.service';
+import { MembershipService } from './Membership/membership.service';
+import { BusinessController } from "./Business/business.controller";
+import { MembershipController } from "./Membership/membership.controller";
+import { UserController } from "./User/user.controller";
 
 @Module({
   imports: [
@@ -41,16 +45,24 @@ import { BusinessService } from './Business/business.service';
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
-  controllers: [CategoryController, PostController, OfferController],
+  controllers: [
+    BusinessController,
+    CategoryController,
+    MembershipController,
+    OfferController,
+    PostController,
+    UserController,
+  ],
   providers: [
-    CategoryService,
-    PostService,
-    OfferService,
+    AuthzService,
     JwtService,
     JwtStrategy,
-    UserService,
-    AuthzService,
     BusinessService,
+    CategoryService,
+    MembershipService,
+    OfferService,
+    PostService,
+    UserService,
   ],
 })
 export class AppModule {}

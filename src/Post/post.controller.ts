@@ -27,8 +27,8 @@ export class PostController {
 
   @Get()
   async getOwn(@Headers('authorization') authorization): Promise<_Post[]> {
-    const user = await this.authzService.getCurrentUser(authorization);
-    return await this.postService.getByBusiness(user.employed_at.id);
+    const business = await this.authzService.getCurrentBusiness(authorization);
+    return await this.postService.getByBusiness(business.id);
   }
 
   @Post()
