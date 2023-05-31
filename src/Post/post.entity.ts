@@ -44,6 +44,6 @@ export class Post {
   @Column({ type: 'money' })
   budget_max: number;
 
-  @Column()
+  @Column({ type: 'date' })
   deadline: Date;
 }
