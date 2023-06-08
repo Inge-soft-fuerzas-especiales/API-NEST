@@ -26,6 +26,10 @@ export class AuthzService {
 
   async getCurrentBusiness(authorization: string): Promise<Business> {
     const user = await this.getCurrentUser(authorization);
-    return await this.businessService.getByOwner(user.id);
+    if (user.owns != null)
+      return await this.businessService.getById(user.owns.id);
+    if (user.employed_at != null)
+      return await this.businessService.getById(user.employed_at.id);
+    return null;
   }
 }
