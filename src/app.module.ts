@@ -26,14 +26,15 @@ import { UserController } from './User/user.controller';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mssql',
-      host: 'fuerzasespeciales-ingesoft.database.windows.net',
-      port: 1433,
-      username: 'ingesoftadmin',
-      password: 'tequeremosbotti<3',
-      database: 'IngeSoft-FuerzasEspeciales',
+      type: 'postgres',
+      host: 'ep-empty-fog-495166.us-east-1.postgres.vercel-storage.com',
+      port: 5432,
+      username: 'default',
+      password: 'Ljz3mDWYlb8Z',
+      database: 'verceldb',
       entities: [Business, Category, Membership, Offer, Post, User],
       synchronize: true,
+      ssl: true,
     }),
     TypeOrmModule.forFeature([
       Business,
