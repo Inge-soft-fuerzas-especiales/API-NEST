@@ -10,21 +10,24 @@ import { Business } from '../Business/business.entity';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn({ name: 'user_id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ unique: true })
   authz_id: string;
 
-  @Column({ nullable: true })
+  @Column({
+    nullable: true,
+    unique: true,
+  })
   dni: number;
 
   @ManyToOne(() => Business, (business) => business.employees, {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  @JoinColumn({ name: 'business' })
-  employed_at: Business;
+  @JoinColumn()
+  employedAt: Business;
 
   @OneToOne(() => Business, (business) => business.owner)
   owns: Business;

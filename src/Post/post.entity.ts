@@ -12,14 +12,14 @@ import { Category } from '../Category/category.entity';
 
 @Entity()
 export class Post {
-  @PrimaryGeneratedColumn({ name: 'post_id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @ManyToOne(() => Business, (business) => business.posts, {
     nullable: false,
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'business_id' })
+  @JoinColumn()
   business: Business;
 
   @OneToMany(() => Offer, (offer) => offer.post)
@@ -29,7 +29,7 @@ export class Post {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  @JoinColumn({ name: 'category_id' })
+  @JoinColumn()
   category: Category;
 
   @Column()
@@ -39,10 +39,10 @@ export class Post {
   description: string;
 
   @Column({ type: 'money' })
-  budget_min: number;
+  budgetMin: number;
 
   @Column({ type: 'money' })
-  budget_max: number;
+  budgetMax: number;
 
   @Column({ type: 'date' })
   deadline: Date;

@@ -10,26 +10,26 @@ import { Business } from '../Business/business.entity';
 
 @Entity()
 export class Offer {
-  @PrimaryGeneratedColumn({ name: 'offer_id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @ManyToOne(() => Business, (business) => business.offers, {
     nullable: false,
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'business_id' })
+  @JoinColumn()
   business: Business;
 
   @ManyToOne(() => Post, (post) => post.offers, {
     nullable: false,
-    onDelete: 'NO ACTION',
+    onDelete: 'RESTRICT',
   })
-  @JoinColumn({ name: 'post_id' })
+  @JoinColumn()
   post: Post;
 
   @Column()
   price: number;
 
   @Column({ type: 'text' })
-  additional_information: string;
+  description: string;
 }

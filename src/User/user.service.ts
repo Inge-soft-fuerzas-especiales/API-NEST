@@ -18,7 +18,7 @@ export class UserService {
   getByAuthzId(authz_id: string): Promise<User> {
     return this.userRepository.findOne({
       where: { authz_id: authz_id },
-      relations: ['employed_at', 'owns'],
+      relations: ['employedAt', 'owns'],
     });
   }
 }

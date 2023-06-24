@@ -28,8 +28,8 @@ export class AuthzService {
     const user = await this.getCurrentUser(authorization);
     if (user.owns != null)
       return await this.businessService.getById(user.owns.id);
-    if (user.employed_at != null)
-      return await this.businessService.getById(user.employed_at.id);
+    if (user.employedAt != null)
+      return await this.businessService.getById(user.employedAt.id);
     return null;
   }
 }

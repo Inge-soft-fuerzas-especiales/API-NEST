@@ -13,30 +13,36 @@ import { Membership } from '../Membership/memebership.entity';
 
 @Entity()
 export class Business {
-  @PrimaryGeneratedColumn({ name: 'business_id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @OneToOne(() => Membership, (membership) => membership.business, {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  @JoinColumn({ name: 'membership_id' })
+  @JoinColumn()
   membership: Membership;
 
   @OneToOne(() => User, (user) => user.owns, {
     nullable: false,
-    onDelete: 'NO ACTION',
+    onDelete: 'RESTRICT',
   })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn()
   owner: User;
 
-  @Column({ unique: true })
+  @Column({
+    nullable: true,
+    unique: true,
+  })
   name: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+    unique: true,
+  })
   cuit: number;
 
-  @OneToMany(() => User, (user) => user.employed_at)
+  @OneToMany(() => User, (user) => user.employedAt)
   employees: User[];
 
   @OneToMany(() => Post, (post) => post.business)
