@@ -14,7 +14,7 @@ export class User {
   id: number;
 
   @Column({ unique: true })
-  authz_id: string;
+  authzId: string;
 
   @Column({
     nullable: true,
@@ -31,4 +31,10 @@ export class User {
 
   @OneToOne(() => Business, (business) => business.owner)
   owns: Business;
+
+  @Column({ default: false })
+  verified: boolean;
+
+  @Column({ default: false })
+  admin: boolean;
 }

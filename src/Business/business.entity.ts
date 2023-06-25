@@ -39,6 +39,7 @@ export class Business {
   @Column({
     nullable: true,
     unique: true,
+    type: 'bigint',
   })
   cuit: number;
 
@@ -50,4 +51,7 @@ export class Business {
 
   @OneToMany(() => Offer, (offer) => offer.business)
   offers: Offer[];
+
+  @Column({ default: false })
+  verified: boolean;
 }

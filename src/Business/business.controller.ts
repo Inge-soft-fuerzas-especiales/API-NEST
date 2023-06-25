@@ -1,15 +1,45 @@
-import { Controller, Get, Headers, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Business } from './business.entity';
 import { AuthzService } from '../Authz/authz.service';
+import { BusinessService } from './business.service';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('business')
 export class BusinessController {
-  constructor(private readonly authzService: AuthzService) {}
+  constructor(
+    private readonly authzService: AuthzService,
+    private readonly businessService: BusinessService,
+  ) {}
 
   @Get()
   getOwn(@Headers('authorization') authorization): Promise<Business> {
     return this.authzService.getCurrentBusiness(authorization);
+  }
+
+  @Put()
+  async addCuit(@Body() cuit: number, @Headers('authorization') authorization) {
+    const business = await this.authzService.getCurrentBusiness(authorization);
+    if (business.cuit === null) business.cuit = cuit;
+    await this.businessService.update(business);
+  }
+
+  @Get('verify')
+  async getUnverified(@Headers('authorization') authorization) {
+    const user = await this.authzService.getCurrentUser(authorization);
+    if (!user.admin) throw new Error('Authorization rejected');
+    return await this.businessService.getUnverified();
+  }
+
+  @Put('verify')
+  async verifyBusiness(
+    @Body() id: number,
+    @Headers('authorization') authorization,
+  ) {
+    const user = await this.authzService.getCurrentUser(authorization);
+    if (!user.admin) throw new Error('Authorization rejected');
+    const target = await this.businessService.getById(id);
+    target.verified = true;
+    await this.businessService.update(target);
   }
 }

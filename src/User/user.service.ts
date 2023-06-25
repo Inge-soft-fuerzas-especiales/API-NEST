@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository, UpdateResult } from 'typeorm';
 import { User } from './user.entity';
 
 @Injectable()
@@ -10,15 +10,34 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  add(authz_id: string): Promise<User> {
-    const newUser = this.userRepository.create({ authz_id: authz_id });
+  add(authzId: string): Promise<User> {
+    const newUser = this.userRepository.create({ authzId: authzId });
     return this.userRepository.save(newUser);
   }
 
-  getByAuthzId(authz_id: string): Promise<User> {
+  getByAuthzId(authzId: string): Promise<User> {
     return this.userRepository.findOne({
-      where: { authz_id: authz_id },
+      where: { authzId: authzId },
       relations: ['employedAt', 'owns'],
     });
+  }
+
+  getById(id: number): Promise<User> {
+    return this.userRepository.findOne({
+      where: { id: id },
+    });
+  }
+
+  getUnverified(): Promise<User[]> {
+    return this.userRepository.find({
+      where: {
+        verified: false,
+        dni: Not(IsNull()),
+      },
+    });
+  }
+
+  update(user: User): Promise<UpdateResult> {
+    return this.userRepository.update({ id: user.id }, user);
   }
 }
