@@ -7,7 +7,7 @@ export class CreatePostDto {
   category: DeepPartial<Category>;
   item: string;
   description: string;
-  budget_min: number;
-  budget_max: number;
+  budgetMin: number;
+  budgetMax: number;
   deadline: Date;
 }

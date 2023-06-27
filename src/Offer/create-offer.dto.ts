@@ -6,5 +6,5 @@ export class CreateOfferDto {
   business: DeepPartial<Business>;
   post: DeepPartial<Post>;
   price: number;
-  additional_information: string;
+  description: string;
 }
