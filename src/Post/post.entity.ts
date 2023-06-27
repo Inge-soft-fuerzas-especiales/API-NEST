@@ -38,10 +38,10 @@ export class Post {
   @Column({ type: 'text' })
   description: string;
 
-  @Column({ type: 'money' })
+  @Column()
   budgetMin: number;
 
-  @Column({ type: 'money' })
+  @Column()
   budgetMax: number;
 
   @Column({ type: 'date' })
