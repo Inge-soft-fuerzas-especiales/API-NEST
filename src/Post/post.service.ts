@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Post } from './post.entity';
 import { CreatePostDto } from './create-post.dto';
+import { Offer } from '../Offer/offer.entity';
 
 @Injectable()
 export class PostService {
@@ -11,14 +12,32 @@ export class PostService {
     private postRepository: Repository<Post>,
   ) {}
 
-  getAll(): Promise<Post[]> {
-    return this.postRepository.find();
+  getByCategory(category_id: number): Promise<Post[]> {
+    return this.postRepository.find({
+      where: { category: { id: category_id } },
+      relations: ['business', 'category'],
+    });
+  }
+
+  getById(post_id: number): Promise<Post> {
+    return this.postRepository.findOne({
+      where: { id: post_id },
+      relations: ['business', 'category'],
+    });
+  }
+
+  getByOffers(offers: Offer[]): Promise<Post[]> {
+    const post_ids = offers.map((offer) => offer.post.id);
+    return this.postRepository.find({
+      where: { id: In(post_ids) },
+      relations: ['business', 'category'],
+    });
   }
 
   getByBusiness(business_id: number): Promise<Post[]> {
     return this.postRepository.find({
       where: { business: { id: business_id } },
-      relations: ['category'],
+      relations: ['business', 'category'],
     });
   }
 

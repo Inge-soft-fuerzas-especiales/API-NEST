@@ -11,12 +11,29 @@ export class OfferService {
     private offerRepository: Repository<Offer>,
   ) {}
 
-  getOffersByPost(post_id: number): Promise<Offer[]> {
+  getByPost(post_id: number): Promise<Offer[]> {
     return this.offerRepository.find({
       where: {
-        post: {
-          id: post_id,
-        },
+        post: { id: post_id },
+      },
+      relations: ['business'],
+    });
+  }
+
+  getByBusiness(business_id: number): Promise<Offer[]> {
+    return this.offerRepository.find({
+      where: {
+        business: { id: business_id },
+      },
+      relations: ['business', 'post'],
+    });
+  }
+
+  getByPostOwned(post_id: number, business_id: number): Promise<Offer[]> {
+    return this.offerRepository.find({
+      where: {
+        post: { id: post_id },
+        business: { id: business_id },
       },
       relations: ['business'],
     });

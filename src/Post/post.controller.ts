@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Headers,
+  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -11,6 +12,7 @@ import { PostService } from './post.service';
 import { CreatePostDto } from './create-post.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthzService } from '../Authz/authz.service';
+import { OfferService } from '../Offer/offer.service';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('posts')
@@ -18,17 +20,27 @@ export class PostController {
   constructor(
     private readonly postService: PostService,
     private readonly authzService: AuthzService,
+    private readonly offerService: OfferService,
   ) {}
 
-  @Get('all')
-  getAll(): Promise<_Post[]> {
-    return this.postService.getAll();
+  @Get('category/:category_id')
+  getByCategory(@Param('category_id') category_id: number): Promise<_Post[]> {
+    return this.postService.getByCategory(category_id);
+  }
+
+  @Get('offered')
+  async getByOffers(@Headers('authorization') authorization): Promise<_Post[]> {
+    const business = await this.authzService.getCurrentBusiness(authorization);
+    const offers = await this.offerService.getByBusiness(business.id);
+    return this.postService.getByOffers(offers);
   }
 
   @Get()
-  async getOwn(@Headers('authorization') authorization): Promise<_Post[]> {
+  async getByBusiness(
+    @Headers('authorization') authorization,
+  ): Promise<_Post[]> {
     const business = await this.authzService.getCurrentBusiness(authorization);
-    return await this.postService.getByBusiness(business.id);
+    return this.postService.getByBusiness(business.id);
   }
 
   @Post()
