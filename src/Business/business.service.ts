@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Not, Repository } from 'typeorm';
 import { Business } from './business.entity';
+import { User } from '../User/user.entity';
 
 @Injectable()
 export class BusinessService {
@@ -9,6 +10,14 @@ export class BusinessService {
     @InjectRepository(Business)
     private businessRepository: Repository<Business>,
   ) {}
+
+  create(owner: User, name: string): Promise<Business> {
+    const business = this.businessRepository.create({
+      owner: owner,
+      name: name,
+    });
+    return this.businessRepository.save(business);
+  }
 
   getById(businessId: number): Promise<Business> {
     return this.businessRepository.findOne({
