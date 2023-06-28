@@ -37,6 +37,28 @@ export class BusinessController {
     await this.businessService.update(business);
   }
 
+  @Post('employee')
+  async addEmployee(
+    @Body() { id: id }: { id: number },
+    @Headers('authorization') authorization,
+  ) {
+    const user = await this.userService.getById(id);
+    const business = await this.authzService.getCurrentBusiness(authorization);
+    if (user.employedAt === null) user.employedAt = business;
+    await this.userService.update(user);
+  }
+
+  @Delete('employee')
+  async removeEmployee(
+    @Body() { id: id }: { id: number },
+    @Headers('authorization') authorization,
+  ) {
+    const user = await this.userService.getById(id);
+    const business = await this.authzService.getCurrentBusiness(authorization);
+    if (user.employedAt.id === business.id) user.employedAt = null;
+    await this.userService.update(user);
+  }
+
   @Get('verify')
   async getUnverified(@Headers('authorization') authorization) {
     const user = await this.authzService.getCurrentUser(authorization);
