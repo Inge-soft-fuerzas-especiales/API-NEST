@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Headers,
   Post,
@@ -37,7 +36,7 @@ export class BusinessController {
     await this.businessService.update(business);
   }
 
-  @Post('employee')
+  @Post('employee/add')
   async addEmployee(
     @Body() { id: id }: { id: number },
     @Headers('authorization') authorization,
@@ -48,7 +47,7 @@ export class BusinessController {
     await this.userService.update(user);
   }
 
-  @Delete('employee')
+  @Post('employee/remove')
   async removeEmployee(
     @Body() { id: id }: { id: number },
     @Headers('authorization') authorization,
