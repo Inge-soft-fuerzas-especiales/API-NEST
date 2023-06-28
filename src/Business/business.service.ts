@@ -11,10 +11,11 @@ export class BusinessService {
     private businessRepository: Repository<Business>,
   ) {}
 
-  create(owner: User, name: string): Promise<Business> {
+  create(owner: User, name: string, cuit: number): Promise<Business> {
     const business = this.businessRepository.create({
       owner: owner,
       name: name,
+      cuit: cuit,
     });
     return this.businessRepository.save(business);
   }

@@ -1,10 +1,10 @@
 import {
+  Column,
   Entity,
-  PrimaryGeneratedColumn,
+  JoinColumn,
   OneToMany,
   OneToOne,
-  JoinColumn,
-  Column,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../User/user.entity';
 import { Post } from '../Post/post.entity';
@@ -30,14 +30,10 @@ export class Business {
   @JoinColumn()
   owner: User;
 
-  @Column({
-    nullable: true,
-    unique: true,
-  })
+  @Column({ unique: true })
   name: string;
 
   @Column({
-    nullable: true,
     unique: true,
     type: 'bigint',
   })

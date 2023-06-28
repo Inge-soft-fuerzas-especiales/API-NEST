@@ -24,27 +24,17 @@ export class BusinessController {
 
   @Post()
   async create(
-    @Body() { name: name }: { name: string },
+    @Body() { name: name, cuit: cuit }: { name: string; cuit: number },
     @Headers('authorization') authorization,
   ) {
     const user = await this.authzService.getCurrentUser(authorization);
     if (user.employedAt === null && user.owns === null)
-      await this.businessService.create(user, name);
+      await this.businessService.create(user, name, cuit);
   }
 
   @Get()
   getOwn(@Headers('authorization') authorization): Promise<Business> {
     return this.authzService.getCurrentBusiness(authorization);
-  }
-
-  @Put()
-  async addCuit(
-    @Body() { cuit: cuit }: { cuit: number },
-    @Headers('authorization') authorization,
-  ) {
-    const business = await this.authzService.getCurrentBusiness(authorization);
-    if (business.cuit === null) business.cuit = cuit;
-    await this.businessService.update(business);
   }
 
   @Put('employee/add')
