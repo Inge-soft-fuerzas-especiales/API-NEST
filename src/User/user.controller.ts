@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Headers, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthzService } from '../Authz/authz.service';
 import { User } from './user.entity';
@@ -12,19 +20,18 @@ export class UserController {
     private readonly userService: UserService,
   ) {}
 
-  @Get()
-  async getOwn(@Headers('authorization') authorization): Promise<User> {
-    return this.authzService.getCurrentUser(authorization);
-  }
-
-  @Put()
-  async addDni(
+  @Post()
+  async create(
     @Body() { dni: dni }: { dni: number },
     @Headers('authorization') authorization,
   ) {
-    const user = await this.authzService.getCurrentUser(authorization);
-    if (user.dni === null) user.dni = dni;
-    await this.userService.update(user);
+    const authzId = this.authzService.getUserId(authorization);
+    return this.userService.create(authzId, dni);
+  }
+
+  @Get()
+  async getOwn(@Headers('authorization') authorization): Promise<User> {
+    return this.authzService.getCurrentUser(authorization);
   }
 
   @Get('verify')

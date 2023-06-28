@@ -10,9 +10,9 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  add(authzId: string): Promise<User> {
-    const newUser = this.userRepository.create({ authzId: authzId });
-    return this.userRepository.save(newUser);
+  create(authzId: string, dni: number): Promise<User> {
+    const user = this.userRepository.create({ authzId: authzId, dni: dni });
+    return this.userRepository.save(user);
   }
 
   getByAuthzId(authzId: string): Promise<User> {
