@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Headers,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Headers, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Business } from './business.entity';
 import { AuthzService } from '../Authz/authz.service';
@@ -26,7 +19,7 @@ export class BusinessController {
     return this.authzService.getCurrentBusiness(authorization);
   }
 
-  @Post()
+  @Put()
   async addCuit(
     @Body() { cuit: cuit }: { cuit: number },
     @Headers('authorization') authorization,
@@ -36,7 +29,7 @@ export class BusinessController {
     await this.businessService.update(business);
   }
 
-  @Post('employee/add')
+  @Put('employee/add')
   async addEmployee(
     @Body() { id: id }: { id: number },
     @Headers('authorization') authorization,
@@ -47,7 +40,7 @@ export class BusinessController {
     await this.userService.update(user);
   }
 
-  @Post('employee/remove')
+  @Put('employee/remove')
   async removeEmployee(
     @Body() { id: id }: { id: number },
     @Headers('authorization') authorization,
@@ -65,7 +58,7 @@ export class BusinessController {
     return await this.businessService.getUnverified();
   }
 
-  @Post('verify')
+  @Put('verify')
   async verifyBusiness(
     @Body() { id: id }: { id: number },
     @Headers('authorization') authorization,
