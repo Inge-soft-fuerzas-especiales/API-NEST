@@ -1,10 +1,10 @@
 import {
+  Column,
   Entity,
-  PrimaryGeneratedColumn,
+  JoinColumn,
   ManyToOne,
   OneToOne,
-  JoinColumn,
-  Column,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Business } from '../Business/business.entity';
 
@@ -16,10 +16,7 @@ export class User {
   @Column({ unique: true })
   authzId: string;
 
-  @Column({
-    nullable: true,
-    unique: true,
-  })
+  @Column({ unique: true })
   dni: number;
 
   @ManyToOne(() => Business, (business) => business.employees, {
