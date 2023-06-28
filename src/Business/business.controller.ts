@@ -1,8 +1,17 @@
-import { Body, Controller, Get, Headers, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Headers,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Business } from './business.entity';
 import { AuthzService } from '../Authz/authz.service';
 import { BusinessService } from './business.service';
+import { UserService } from '../User/user.service';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('business')
@@ -10,6 +19,7 @@ export class BusinessController {
   constructor(
     private readonly authzService: AuthzService,
     private readonly businessService: BusinessService,
+    private readonly userService: UserService,
   ) {}
 
   @Get()
@@ -17,8 +27,11 @@ export class BusinessController {
     return this.authzService.getCurrentBusiness(authorization);
   }
 
-  @Put()
-  async addCuit(@Body() cuit: number, @Headers('authorization') authorization) {
+  @Post()
+  async addCuit(
+    @Body() { cuit: cuit }: { cuit: number },
+    @Headers('authorization') authorization,
+  ) {
     const business = await this.authzService.getCurrentBusiness(authorization);
     if (business.cuit === null) business.cuit = cuit;
     await this.businessService.update(business);
@@ -31,9 +44,9 @@ export class BusinessController {
     return await this.businessService.getUnverified();
   }
 
-  @Put('verify')
+  @Post('verify')
   async verifyBusiness(
-    @Body() id: number,
+    @Body() { id: id }: { id: number },
     @Headers('authorization') authorization,
   ) {
     const user = await this.authzService.getCurrentUser(authorization);

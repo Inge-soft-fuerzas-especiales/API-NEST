@@ -25,6 +25,7 @@ export class UserService {
   getById(id: number): Promise<User> {
     return this.userRepository.findOne({
       where: { id: id },
+      relations: ['employedAt', 'owns'],
     });
   }
 
