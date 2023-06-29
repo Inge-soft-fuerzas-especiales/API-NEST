@@ -20,16 +20,16 @@ export class AuthzService {
   }
 
   async getCurrentUser(authorization: string): Promise<User> {
-    const authz_id = this.getUserId(authorization);
-    return await this.userService.getByAuthzId(authz_id);
+    const authzId = this.getUserId(authorization);
+    return await this.userService.getByAuthzId(authzId);
   }
 
   async getCurrentBusiness(authorization: string): Promise<Business> {
     const user = await this.getCurrentUser(authorization);
-    if (user.owns != null)
-      return await this.businessService.getById(user.owns.id);
-    if (user.employedAt != null)
-      return await this.businessService.getById(user.employedAt.id);
+    if (user.owns !== null)
+      return await this.businessService.getByCuit(user.owns.cuit);
+    if (user.employedAt !== null)
+      return await this.businessService.getByCuit(user.employedAt.cuit);
     return null;
   }
 }

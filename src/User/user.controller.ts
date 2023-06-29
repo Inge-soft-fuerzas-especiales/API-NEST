@@ -11,6 +11,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthzService } from '../Authz/authz.service';
 import { User } from './user.entity';
 import { UserService } from './user.service';
+import { ResponseBoolDto, ResponseDataDto } from '../response.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('user')
@@ -21,35 +22,44 @@ export class UserController {
   ) {}
 
   @Post()
-  async create(
+  async createUser(
     @Body() { dni: dni }: { dni: number },
     @Headers('authorization') authorization,
-  ) {
+  ): Promise<ResponseBoolDto> {
     const authzId = this.authzService.getUserId(authorization);
-    return this.userService.create(authzId, dni);
+
+    return new ResponseBoolDto(await this.userService.createUser(authzId, dni));
   }
 
   @Get()
-  async getOwn(@Headers('authorization') authorization): Promise<User> {
-    return this.authzService.getCurrentUser(authorization);
+  async getOwn(
+    @Headers('authorization') authorization,
+  ): Promise<ResponseDataDto<User>> {
+    return new ResponseDataDto<User>(
+      await this.authzService.getCurrentUser(authorization),
+    );
   }
 
   @Get('verify')
-  async getUnverified(@Headers('authorization') authorization) {
+  async getUnverified(
+    @Headers('authorization') authorization,
+  ): Promise<ResponseDataDto<User[]>> {
     const user = await this.authzService.getCurrentUser(authorization);
-    if (!user.admin) throw new Error('Authorization rejected');
-    return await this.userService.getUnverified();
+
+    if (user === null || !user.admin) return new ResponseDataDto<User[]>(null);
+
+    return new ResponseDataDto<User[]>(await this.userService.getUnverified());
   }
 
   @Put('verify')
   async verifyUser(
-    @Body() { id: id }: { id: number },
+    @Body() { dni: dni }: { dni: number },
     @Headers('authorization') authorization,
-  ) {
+  ): Promise<ResponseBoolDto> {
     const user = await this.authzService.getCurrentUser(authorization);
-    if (!user.admin) throw new Error('Authorization rejected');
-    const target = await this.userService.getById(id);
-    target.verified = true;
-    await this.userService.update(target);
+
+    if (user === null || !user.admin) return new ResponseBoolDto(false);
+
+    return new ResponseBoolDto(await this.userService.verify(dni));
   }
 }

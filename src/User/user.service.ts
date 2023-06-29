@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IsNull, Not, Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from './user.entity';
+import { Business } from '../Business/business.entity';
 
 @Injectable()
 export class UserService {
@@ -10,9 +11,14 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  create(authzId: string, dni: number): Promise<User> {
+  async createUser(authzId: string, dni: number): Promise<boolean> {
     const user = this.userRepository.create({ authzId: authzId, dni: dni });
-    return this.userRepository.save(user);
+    try {
+      await this.userRepository.insert(user);
+    } catch (e) {
+      return false;
+    }
+    return true;
   }
 
   getByAuthzId(authzId: string): Promise<User> {
@@ -22,23 +28,37 @@ export class UserService {
     });
   }
 
-  getById(id: number): Promise<User> {
+  getByDni(dni: number): Promise<User> {
     return this.userRepository.findOne({
-      where: { id: id },
+      where: { dni: dni },
       relations: ['employedAt', 'owns'],
     });
   }
 
   getUnverified(): Promise<User[]> {
     return this.userRepository.find({
-      where: {
-        verified: false,
-        dni: Not(IsNull()),
-      },
+      where: { verified: false },
     });
   }
 
-  update(user: User): Promise<UpdateResult> {
-    return this.userRepository.update({ id: user.id }, user);
+  async verify(dni: number): Promise<boolean> {
+    try {
+      await this.userRepository.update({ dni: dni }, { verified: true });
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
+
+  async setEmployment(
+    dni: number,
+    business: Business | null,
+  ): Promise<boolean> {
+    try {
+      await this.userRepository.update({ dni: dni }, { employedAt: business });
+    } catch (e) {
+      return false;
+    }
+    return true;
   }
 }

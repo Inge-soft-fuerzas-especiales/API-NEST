@@ -13,6 +13,7 @@ import { CreatePostDto } from './create-post.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthzService } from '../Authz/authz.service';
 import { OfferService } from '../Offer/offer.service';
+import { ResponseBoolDto, ResponseDataDto } from '../response.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('posts')
@@ -23,34 +24,54 @@ export class PostController {
     private readonly offerService: OfferService,
   ) {}
 
-  @Get('category/:category_id')
-  getByCategory(@Param('category_id') category_id: number): Promise<_Post[]> {
-    return this.postService.getByCategory(category_id);
+  @Get('category/:categoryId')
+  async getByCategory(
+    @Param('categoryId') categoryId: number,
+  ): Promise<ResponseDataDto<_Post[]>> {
+    return new ResponseDataDto<_Post[]>(
+      await this.postService.getByCategory(categoryId),
+    );
   }
 
   @Get('offered')
-  async getByOffers(@Headers('authorization') authorization): Promise<_Post[]> {
+  async getByOffers(
+    @Headers('authorization') authorization,
+  ): Promise<ResponseDataDto<_Post[]>> {
     const business = await this.authzService.getCurrentBusiness(authorization);
-    const offers = await this.offerService.getByBusiness(business.id);
-    return this.postService.getByOffers(offers);
+
+    if (business === null) return new ResponseDataDto<_Post[]>(null);
+
+    const offers = await this.offerService.getByBusiness(business.cuit);
+    return new ResponseDataDto<_Post[]>(
+      await this.postService.getByOffers(offers),
+    );
   }
 
   @Get()
-  async getByBusiness(
+  async getOwn(
     @Headers('authorization') authorization,
-  ): Promise<_Post[]> {
+  ): Promise<ResponseDataDto<_Post[]>> {
     const business = await this.authzService.getCurrentBusiness(authorization);
-    return this.postService.getByBusiness(business.id);
+
+    if (business === null) return new ResponseDataDto<_Post[]>(null);
+
+    return new ResponseDataDto<_Post[]>(
+      await this.postService.getByBusiness(business.cuit),
+    );
   }
 
   @Post()
   async createPost(
     @Body() createPostDto: CreatePostDto,
     @Headers('authorization') authorization,
-  ): Promise<_Post> {
-    createPostDto.business = await this.authzService.getCurrentBusiness(
-      authorization,
+  ): Promise<ResponseBoolDto> {
+    const business = await this.authzService.getCurrentBusiness(authorization);
+
+    if (business === null) return new ResponseBoolDto(false);
+
+    createPostDto.business = business;
+    return new ResponseBoolDto(
+      await this.postService.createPost(createPostDto),
     );
-    return this.postService.createPost(createPostDto);
   }
 }

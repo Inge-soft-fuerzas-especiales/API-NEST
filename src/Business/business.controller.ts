@@ -12,6 +12,7 @@ import { Business } from './business.entity';
 import { AuthzService } from '../Authz/authz.service';
 import { BusinessService } from './business.service';
 import { UserService } from '../User/user.service';
+import { ResponseBoolDto, ResponseDataDto } from '../response.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('business')
@@ -26,55 +27,84 @@ export class BusinessController {
   async create(
     @Body() { name: name, cuit: cuit }: { name: string; cuit: number },
     @Headers('authorization') authorization,
-  ) {
+  ): Promise<ResponseBoolDto> {
     const user = await this.authzService.getCurrentUser(authorization);
-    if (user.employedAt === null && user.owns === null)
-      await this.businessService.create(user, name, cuit);
+
+    if (user === null || user.employedAt !== null || user.owns !== null)
+      return new ResponseBoolDto(false);
+
+    return new ResponseBoolDto(
+      await this.businessService.create(user, name, cuit),
+    );
   }
 
   @Get()
-  getOwn(@Headers('authorization') authorization): Promise<Business> {
-    return this.authzService.getCurrentBusiness(authorization);
+  async getOwn(
+    @Headers('authorization') authorization,
+  ): Promise<ResponseDataDto<Business>> {
+    return new ResponseDataDto(
+      await this.authzService.getCurrentBusiness(authorization),
+    );
   }
 
   @Put('employee/add')
   async addEmployee(
-    @Body() { id: id }: { id: number },
+    @Body() { dni: dni }: { dni: number },
     @Headers('authorization') authorization,
-  ) {
-    const user = await this.userService.getById(id);
+  ): Promise<ResponseBoolDto> {
+    const user = await this.userService.getByDni(dni);
     const business = await this.authzService.getCurrentBusiness(authorization);
-    if (user.employedAt === null) user.employedAt = business;
-    await this.userService.update(user);
+
+    if (user === null || business === null || user.employedAt !== null)
+      return new ResponseBoolDto(false);
+
+    return new ResponseBoolDto(
+      await this.userService.setEmployment(dni, business),
+    );
   }
 
   @Put('employee/remove')
   async removeEmployee(
-    @Body() { id: id }: { id: number },
+    @Body() { dni: dni }: { dni: number },
     @Headers('authorization') authorization,
-  ) {
-    const user = await this.userService.getById(id);
+  ): Promise<ResponseBoolDto> {
+    const user = await this.userService.getByDni(dni);
     const business = await this.authzService.getCurrentBusiness(authorization);
-    if (user.employedAt.id === business.id) user.employedAt = null;
-    await this.userService.update(user);
+
+    if (
+      user === null ||
+      business === null ||
+      user.employedAt === null ||
+      user.employedAt.cuit !== business.cuit
+    )
+      return new ResponseBoolDto(false);
+
+    return new ResponseBoolDto(await this.userService.setEmployment(dni, null));
   }
 
   @Get('verify')
-  async getUnverified(@Headers('authorization') authorization) {
+  async getUnverified(
+    @Headers('authorization') authorization,
+  ): Promise<ResponseDataDto<Business[]>> {
     const user = await this.authzService.getCurrentUser(authorization);
-    if (!user.admin) throw new Error('Authorization rejected');
-    return await this.businessService.getUnverified();
+
+    if (user === null || !user.admin)
+      return new ResponseDataDto<Business[]>(null);
+
+    return new ResponseDataDto<Business[]>(
+      await this.businessService.getUnverified(),
+    );
   }
 
   @Put('verify')
   async verifyBusiness(
-    @Body() { id: id }: { id: number },
+    @Body() { cuit: cuit }: { cuit: number },
     @Headers('authorization') authorization,
-  ) {
+  ): Promise<ResponseBoolDto> {
     const user = await this.authzService.getCurrentUser(authorization);
-    if (!user.admin) throw new Error('Authorization rejected');
-    const target = await this.businessService.getById(id);
-    target.verified = true;
-    await this.businessService.update(target);
+
+    if (user === null || !user.admin) return new ResponseBoolDto(false);
+
+    return new ResponseBoolDto(await this.businessService.verify(cuit));
   }
 }

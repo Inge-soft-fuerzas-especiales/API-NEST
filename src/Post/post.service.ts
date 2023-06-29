@@ -12,37 +12,42 @@ export class PostService {
     private postRepository: Repository<Post>,
   ) {}
 
-  getByCategory(category_id: number): Promise<Post[]> {
+  getByCategory(categoryId: number): Promise<Post[]> {
     return this.postRepository.find({
-      where: { category: { id: category_id } },
+      where: { category: { id: categoryId } },
       relations: ['business', 'category'],
     });
   }
 
-  getById(post_id: number): Promise<Post> {
+  getById(postId: number): Promise<Post> {
     return this.postRepository.findOne({
-      where: { id: post_id },
+      where: { id: postId },
       relations: ['business', 'category'],
     });
   }
 
   getByOffers(offers: Offer[]): Promise<Post[]> {
-    const post_ids = offers.map((offer) => offer.post.id);
+    const postIds = offers.map((offer) => offer.post.id);
     return this.postRepository.find({
-      where: { id: In(post_ids) },
+      where: { id: In(postIds) },
       relations: ['business', 'category'],
     });
   }
 
-  getByBusiness(business_id: number): Promise<Post[]> {
+  getByBusiness(cuit: number): Promise<Post[]> {
     return this.postRepository.find({
-      where: { business: { id: business_id } },
+      where: { business: { cuit: cuit } },
       relations: ['business', 'category'],
     });
   }
 
-  createPost(postData: CreatePostDto): Promise<Post> {
-    const newPost = this.postRepository.create(postData);
-    return this.postRepository.save(newPost);
+  async createPost(postData: CreatePostDto): Promise<boolean> {
+    const post = this.postRepository.create(postData);
+    try {
+      await this.postRepository.insert(post);
+    } catch (e) {
+      return false;
+    }
+    return true;
   }
 }

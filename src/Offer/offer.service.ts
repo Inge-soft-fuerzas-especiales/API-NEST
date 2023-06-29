@@ -11,36 +11,41 @@ export class OfferService {
     private offerRepository: Repository<Offer>,
   ) {}
 
-  getByPost(post_id: number): Promise<Offer[]> {
+  getByPost(postId: number): Promise<Offer[]> {
     return this.offerRepository.find({
       where: {
-        post: { id: post_id },
+        post: { id: postId },
       },
       relations: ['business'],
     });
   }
 
-  getByBusiness(business_id: number): Promise<Offer[]> {
+  getByBusiness(cuit: number): Promise<Offer[]> {
     return this.offerRepository.find({
       where: {
-        business: { id: business_id },
+        business: { cuit: cuit },
       },
       relations: ['business', 'post'],
     });
   }
 
-  getByPostOwned(post_id: number, business_id: number): Promise<Offer[]> {
+  getByPostOffered(postId: number, cuit: number): Promise<Offer[]> {
     return this.offerRepository.find({
       where: {
-        post: { id: post_id },
-        business: { id: business_id },
+        post: { id: postId },
+        business: { cuit: cuit },
       },
       relations: ['business'],
     });
   }
 
-  createOffer(offerData: CreateOfferDto): Promise<Offer> {
-    const newOffer = this.offerRepository.create(offerData);
-    return this.offerRepository.save(newOffer);
+  async createOffer(offerData: CreateOfferDto): Promise<boolean> {
+    const offer = this.offerRepository.create(offerData);
+    try {
+      await this.offerRepository.insert(offer);
+    } catch (e) {
+      return false;
+    }
+    return true;
   }
 }
