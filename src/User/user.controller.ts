@@ -23,12 +23,19 @@ export class UserController {
 
   @Post()
   async createUser(
-    @Body() { dni: dni }: { dni: number },
+    @Body()
+    {
+      dni: dni,
+      name: name,
+      surname: surname,
+    }: { dni: number; name: string; surname: string },
     @Headers('authorization') authorization,
   ): Promise<ResponseBoolDto> {
     const authzId = this.authzService.getUserId(authorization);
 
-    return new ResponseBoolDto(await this.userService.createUser(authzId, dni));
+    return new ResponseBoolDto(
+      await this.userService.createUser(authzId, dni, name, surname),
+    );
   }
 
   @Get()

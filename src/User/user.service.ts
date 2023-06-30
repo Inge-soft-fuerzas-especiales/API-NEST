@@ -11,8 +11,18 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  async createUser(authzId: string, dni: number): Promise<boolean> {
-    const user = this.userRepository.create({ authzId: authzId, dni: dni });
+  async createUser(
+    authzId: string,
+    dni: number,
+    name: string,
+    surname: string,
+  ): Promise<boolean> {
+    const user = this.userRepository.create({
+      authzId: authzId,
+      dni: dni,
+      name: name,
+      surname: surname,
+    });
     try {
       await this.userRepository.insert(user);
     } catch (e) {

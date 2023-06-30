@@ -19,6 +19,12 @@ export class User {
   @Column({ unique: true })
   dni: number;
 
+  @Column({ default: 'Nombre' })
+  name: string;
+
+  @Column({ default: 'Apellido' })
+  surname: string;
+
   @ManyToOne(() => Business, (business) => business.employees, {
     nullable: true,
     onDelete: 'SET NULL',
