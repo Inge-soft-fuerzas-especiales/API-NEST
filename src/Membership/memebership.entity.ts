@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Business } from '../Business/business.entity';
 
 @Entity()
@@ -6,7 +12,11 @@ export class Membership {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Business, (business) => business.membership)
+  @OneToOne(() => Business, (business) => business.membership, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
   business: Business;
 
   @Column()

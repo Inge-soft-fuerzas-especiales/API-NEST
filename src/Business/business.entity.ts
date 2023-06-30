@@ -16,11 +16,7 @@ export class Business {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Membership, (membership) => membership.business, {
-    nullable: true,
-    onDelete: 'SET NULL',
-  })
-  @JoinColumn()
+  @OneToOne(() => Membership, (membership) => membership.business)
   membership: Membership;
 
   @OneToOne(() => User, (user) => user.owns, {
