@@ -2,8 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Post } from './post.entity';
-import { CreatePostDto } from './create-post.dto';
 import { Offer } from '../Offer/offer.entity';
+import { Business } from '../Business/business.entity';
+import { Category } from '../Category/category.entity';
+import { CreatePostDto } from './create-post.dto';
 
 @Injectable()
 export class PostService {
@@ -41,8 +43,20 @@ export class PostService {
     });
   }
 
-  async createPost(postData: CreatePostDto): Promise<boolean> {
-    const post = this.postRepository.create(postData);
+  async createPost(
+    business: Business,
+    category: Category,
+    postDto: CreatePostDto,
+  ): Promise<boolean> {
+    const post = this.postRepository.create({
+      business: business,
+      category: category,
+      item: postDto.item,
+      description: postDto.description,
+      budgetMin: postDto.budgetMin,
+      budgetMax: postDto.budgetMax,
+      deadline: postDto.deadline,
+    });
     try {
       await this.postRepository.insert(post);
     } catch (e) {

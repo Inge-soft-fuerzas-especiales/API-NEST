@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Offer } from './offer.entity';
+import { Business } from '../Business/business.entity';
+import { Post } from '../Post/post.entity';
 import { CreateOfferDto } from './create-offer.dto';
 
 @Injectable()
@@ -39,8 +41,17 @@ export class OfferService {
     });
   }
 
-  async createOffer(offerData: CreateOfferDto): Promise<boolean> {
-    const offer = this.offerRepository.create(offerData);
+  async createOffer(
+    business: Business,
+    post: Post,
+    offerDto: CreateOfferDto,
+  ): Promise<boolean> {
+    const offer = this.offerRepository.create({
+      business: business,
+      post: post,
+      price: offerDto.price,
+      description: offerDto.description,
+    });
     try {
       await this.offerRepository.insert(offer);
     } catch (e) {

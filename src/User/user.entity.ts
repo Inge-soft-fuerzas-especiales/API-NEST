@@ -4,26 +4,31 @@ import {
   JoinColumn,
   ManyToOne,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
 } from 'typeorm';
 import { Business } from '../Business/business.entity';
 
+export enum UserRole {
+  UNVERIFIED = 'unverified',
+  VERIFIED = 'verified',
+  OWNER = 'owner',
+  EMPLOYEE = 'employee',
+  ADMIN = 'admin',
+}
+
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn({ type: 'bigint' })
+  dni: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  surname: string;
 
   @Column({ unique: true })
   authzId: string;
-
-  @Column({ unique: true })
-  dni: number;
-
-  @Column({ default: 'Nombre' })
-  name: string;
-
-  @Column({ default: 'Apellido' })
-  surname: string;
 
   @ManyToOne(() => Business, (business) => business.employees, {
     nullable: true,
@@ -35,9 +40,6 @@ export class User {
   @OneToOne(() => Business, (business) => business.owner)
   owns: Business;
 
-  @Column({ default: false })
-  verified: boolean;
-
-  @Column({ default: false })
-  admin: boolean;
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.UNVERIFIED })
+  role: UserRole;
 }

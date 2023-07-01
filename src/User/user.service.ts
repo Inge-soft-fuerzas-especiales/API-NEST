@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User, UserRole } from './user.entity';
 import { Business } from '../Business/business.entity';
 
 @Injectable()
@@ -47,25 +47,40 @@ export class UserService {
 
   getUnverified(): Promise<User[]> {
     return this.userRepository.find({
-      where: { verified: false },
+      where: { role: UserRole.UNVERIFIED },
     });
   }
 
   async verify(dni: number): Promise<boolean> {
     try {
-      await this.userRepository.update({ dni: dni }, { verified: true });
+      await this.userRepository.update(
+        { dni: dni },
+        { role: UserRole.VERIFIED },
+      );
     } catch (e) {
       return false;
     }
     return true;
   }
 
-  async setEmployment(
-    dni: number,
-    business: Business | null,
-  ): Promise<boolean> {
+  async setEmployed(dni: number, business: Business): Promise<boolean> {
     try {
-      await this.userRepository.update({ dni: dni }, { employedAt: business });
+      await this.userRepository.update(
+        { dni: dni },
+        { employedAt: business, role: UserRole.EMPLOYEE },
+      );
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
+
+  async clearEmployed(dni: number): Promise<boolean> {
+    try {
+      await this.userRepository.update(
+        { dni: dni },
+        { employedAt: null, role: UserRole.VERIFIED },
+      );
     } catch (e) {
       return false;
     }

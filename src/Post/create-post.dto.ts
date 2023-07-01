@@ -1,10 +1,5 @@
-import { DeepPartial } from 'typeorm';
-import { Category } from '../Category/category.entity';
-import { Business } from '../Business/business.entity';
-
 export class CreatePostDto {
-  business: DeepPartial<Business>;
-  category: DeepPartial<Category>;
+  categoryId: number;
   item: string;
   description: string;
   budgetMin: number;

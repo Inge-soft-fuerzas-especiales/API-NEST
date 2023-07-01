@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthzService } from '../Authz/authz.service';
-import { User } from './user.entity';
+import { User, UserRole } from './user.entity';
 import { UserService } from './user.service';
 import { ResponseBoolDto, ResponseDataDto } from '../response.dto';
 
@@ -31,7 +31,7 @@ export class UserController {
     }: { dni: number; name: string; surname: string },
     @Headers('authorization') authorization,
   ): Promise<ResponseBoolDto> {
-    const authzId = this.authzService.getUserId(authorization);
+    const authzId = this.authzService.getUserAuthzId(authorization);
 
     return new ResponseBoolDto(
       await this.userService.createUser(authzId, dni, name, surname),
@@ -52,10 +52,13 @@ export class UserController {
     @Headers('authorization') authorization,
   ): Promise<ResponseDataDto<User[]>> {
     const user = await this.authzService.getCurrentUser(authorization);
+    if (user === null) return new ResponseDataDto<User[]>(null);
 
-    if (user === null || !user.admin) return new ResponseDataDto<User[]>(null);
-
-    return new ResponseDataDto<User[]>(await this.userService.getUnverified());
+    if (user.role === UserRole.ADMIN) {
+      return new ResponseDataDto<User[]>(
+        await this.userService.getUnverified(),
+      );
+    } else return new ResponseDataDto<User[]>(null);
   }
 
   @Put('verify')
@@ -64,9 +67,11 @@ export class UserController {
     @Headers('authorization') authorization,
   ): Promise<ResponseBoolDto> {
     const user = await this.authzService.getCurrentUser(authorization);
+    const target = await this.userService.getByDni(dni);
+    if (user === null || target === null) return new ResponseBoolDto(false);
 
-    if (user === null || !user.admin) return new ResponseBoolDto(false);
-
-    return new ResponseBoolDto(await this.userService.verify(dni));
+    if (user.role === UserRole.ADMIN && target.role === UserRole.UNVERIFIED) {
+      return new ResponseBoolDto(await this.userService.verify(dni));
+    } else return new ResponseBoolDto(false);
   }
 }

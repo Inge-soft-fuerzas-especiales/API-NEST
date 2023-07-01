@@ -4,6 +4,7 @@ import { MembershipService } from './membership.service';
 import { Membership } from './memebership.entity';
 import { AuthzService } from '../Authz/authz.service';
 import { ResponseDataDto } from '../response.dto';
+import { BusinessRole } from '../Business/business.entity';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('membership')
@@ -18,9 +19,10 @@ export class MembershipController {
     @Headers('authorization') authorization,
   ): Promise<ResponseDataDto<Membership>> {
     const business = await this.authzService.getCurrentBusiness(authorization);
-
     if (business === null) return new ResponseDataDto<Membership>(null);
 
-    return new ResponseDataDto<Membership>(business.membership);
+    if (business.role === BusinessRole.SUBSCRIBED)
+      return new ResponseDataDto<Membership>(business.membership);
+    else return new ResponseDataDto<Membership>(null);
   }
 }

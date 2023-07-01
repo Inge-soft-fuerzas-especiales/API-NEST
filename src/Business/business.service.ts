@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Business } from './business.entity';
-import { User } from '../User/user.entity';
+import { Business, BusinessRole } from './business.entity';
+import { User, UserRole } from '../User/user.entity';
 
 @Injectable()
 export class BusinessService {
@@ -11,14 +11,17 @@ export class BusinessService {
     private businessRepository: Repository<Business>,
   ) {}
 
-  async create(owner: User, name: string, cuit: number): Promise<boolean> {
+  async create(cuit: number, name: string, owner: User): Promise<boolean> {
+    if ((await this.getByCuit(cuit)) !== null) return false;
+
+    owner.role = UserRole.OWNER;
     const business = this.businessRepository.create({
-      owner: owner,
-      name: name,
       cuit: cuit,
+      name: name,
+      owner: owner,
     });
     try {
-      await this.businessRepository.insert(business);
+      await this.businessRepository.save(business);
     } catch (e) {
       return false;
     }
@@ -34,14 +37,17 @@ export class BusinessService {
 
   getUnverified(): Promise<Business[]> {
     return this.businessRepository.find({
-      where: { verified: false },
+      where: { role: BusinessRole.UNVERIFIED },
       relations: ['owner'],
     });
   }
 
   async verify(cuit: number): Promise<boolean> {
     try {
-      await this.businessRepository.update({ cuit: cuit }, { verified: true });
+      await this.businessRepository.update(
+        { cuit: cuit },
+        { role: BusinessRole.VERIFIED },
+      );
     } catch (e) {
       return false;
     }
