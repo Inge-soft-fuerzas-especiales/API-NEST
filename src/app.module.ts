@@ -22,6 +22,8 @@ import { MembershipService } from './Membership/membership.service';
 import { BusinessController } from './Business/business.controller';
 import { MembershipController } from './Membership/membership.controller';
 import { UserController } from './User/user.controller';
+import { SearchController } from './Search/search.controller';
+import { SearchService } from './Search/search.service';
 
 @Module({
   imports: [
@@ -53,6 +55,7 @@ import { UserController } from './User/user.controller';
     OfferController,
     PostController,
     UserController,
+    SearchController,
   ],
   providers: [
     AuthzService,
@@ -64,6 +67,7 @@ import { UserController } from './User/user.controller';
     OfferService,
     PostService,
     UserService,
+    SearchService,
   ],
 })
 export class AppModule {}
