@@ -34,14 +34,14 @@ export class UserService {
   getByAuthzId(authzId: string): Promise<User> {
     return this.userRepository.findOne({
       where: { authzId: authzId },
-      relations: ['employedAt', 'owns'],
+      relations: ['business'],
     });
   }
 
   getByDni(dni: number): Promise<User> {
     return this.userRepository.findOne({
       where: { dni: dni },
-      relations: ['employedAt', 'owns'],
+      relations: ['business'],
     });
   }
 
@@ -67,7 +67,7 @@ export class UserService {
     try {
       await this.userRepository.update(
         { dni: dni },
-        { employedAt: business, role: UserRole.EMPLOYEE },
+        { business: business, role: UserRole.EMPLOYEE },
       );
     } catch (e) {
       return false;
@@ -79,7 +79,7 @@ export class UserService {
     try {
       await this.userRepository.update(
         { dni: dni },
-        { employedAt: null, role: UserRole.VERIFIED },
+        { business: null, role: UserRole.VERIFIED },
       );
     } catch (e) {
       return false;

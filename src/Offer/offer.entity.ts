@@ -1,9 +1,9 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Post } from '../Post/post.entity';
 import { Business } from '../Business/business.entity';
@@ -13,14 +13,14 @@ export class Offer {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Business, (business) => business.offers, {
+  @ManyToOne(() => Business, {
     nullable: false,
     onDelete: 'CASCADE',
   })
   @JoinColumn()
   business: Business;
 
-  @ManyToOne(() => Post, (post) => post.offers, {
+  @ManyToOne(() => Post, {
     nullable: false,
     onDelete: 'RESTRICT',
   })

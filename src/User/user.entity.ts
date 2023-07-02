@@ -1,11 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToOne,
-  PrimaryColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Business } from '../Business/business.entity';
 
 export enum UserRole {
@@ -30,15 +23,12 @@ export class User {
   @Column({ unique: true })
   authzId: string;
 
-  @ManyToOne(() => Business, (business) => business.employees, {
+  @ManyToOne(() => Business, {
     nullable: true,
     onDelete: 'SET NULL',
   })
   @JoinColumn()
-  employedAt: Business;
-
-  @OneToOne(() => Business, (business) => business.owner)
-  owns: Business;
+  business: Business;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.UNVERIFIED })
   role: UserRole;

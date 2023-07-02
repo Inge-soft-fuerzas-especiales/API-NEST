@@ -81,7 +81,7 @@ export class BusinessController {
       (business.role === BusinessRole.VERIFIED ||
         business.role === BusinessRole.SUBSCRIBED)
     ) {
-      if (user.employedAt.cuit === business.cuit)
+      if (user.business.cuit === business.cuit)
         return new ResponseBoolDto(await this.userService.clearEmployed(dni));
       else return new ResponseBoolDto(false);
     } else return new ResponseBoolDto(false);

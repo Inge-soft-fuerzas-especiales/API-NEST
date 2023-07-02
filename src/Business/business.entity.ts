@@ -1,14 +1,5 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-  PrimaryColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { User } from '../User/user.entity';
-import { Post } from '../Post/post.entity';
-import { Offer } from '../Offer/offer.entity';
 import { Membership } from '../Membership/memebership.entity';
 
 export enum BusinessRole {
@@ -25,7 +16,7 @@ export class Business {
   @OneToOne(() => Membership, (membership) => membership.business)
   membership: Membership;
 
-  @OneToOne(() => User, (user) => user.owns, {
+  @OneToOne(() => User, {
     nullable: false,
     onDelete: 'RESTRICT',
     cascade: true,
@@ -35,15 +26,6 @@ export class Business {
 
   @Column({ unique: true })
   name: string;
-
-  @OneToMany(() => User, (user) => user.employedAt)
-  employees: User[];
-
-  @OneToMany(() => Post, (post) => post.business)
-  posts: Post[];
-
-  @OneToMany(() => Offer, (offer) => offer.business)
-  offers: Offer[];
 
   @Column({
     type: 'enum',

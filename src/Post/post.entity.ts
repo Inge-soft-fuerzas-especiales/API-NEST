@@ -1,12 +1,10 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
-  OneToMany,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Offer } from '../Offer/offer.entity';
 import { Business } from '../Business/business.entity';
 import { Category } from '../Category/category.entity';
 
@@ -15,15 +13,12 @@ export class Post {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Business, (business) => business.posts, {
+  @ManyToOne(() => Business, {
     nullable: false,
     onDelete: 'CASCADE',
   })
   @JoinColumn()
   business: Business;
-
-  @OneToMany(() => Offer, (offer) => offer.post)
-  offers: Offer[];
 
   @ManyToOne(() => Category, {
     nullable: true,

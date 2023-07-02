@@ -28,13 +28,8 @@ export class AuthzService {
     const user = await this.getCurrentUser(authorization);
     if (user === null) return null;
 
-    switch (user.role) {
-      case UserRole.OWNER:
-        return await this.businessService.getByCuit(user.owns.cuit);
-      case UserRole.EMPLOYEE:
-        return await this.businessService.getByCuit(user.employedAt.cuit);
-      default:
-        return null;
-    }
+    if (user.role === UserRole.OWNER || user.role === UserRole.EMPLOYEE) {
+      return await this.businessService.getByCuit(user.business.cuit);
+    } else return null;
   }
 }
