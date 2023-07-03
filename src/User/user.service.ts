@@ -63,6 +63,12 @@ export class UserService {
     return true;
   }
 
+  async getEmployees(cuit: number): Promise<User[]> {
+    return this.userRepository.find({
+      where: { business: { cuit: cuit }, role: UserRole.EMPLOYEE },
+    });
+  }
+
   async setEmployed(dni: number, business: Business): Promise<boolean> {
     try {
       await this.userRepository.update(

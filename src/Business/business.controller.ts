@@ -13,7 +13,7 @@ import { AuthzService } from '../Authz/authz.service';
 import { BusinessService } from './business.service';
 import { UserService } from '../User/user.service';
 import { ResponseBoolDto, ResponseDataDto } from '../response.dto';
-import { UserRole } from '../User/user.entity';
+import { User, UserRole } from '../User/user.entity';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('business')
@@ -48,23 +48,62 @@ export class BusinessController {
     );
   }
 
-  @Put('employee/add')
-  async addEmployee(
+  @Get('employee')
+  async getEmployees(
+    @Headers('authorization') authorization,
+  ): Promise<ResponseDataDto<User[]>> {
+    const user = await this.authzService.getCurrentUser(authorization);
+    if (user === null) return new ResponseDataDto<User[]>(null);
+
+    if (
+      user.role === UserRole.OWNER &&
+      user.business.role !== BusinessRole.UNVERIFIED
+    ) {
+      return new ResponseDataDto<User[]>(
+        await this.userService.getEmployees(user.business.cuit),
+      );
+    } else return new ResponseDataDto<User[]>(null);
+  }
+
+  @Put('employee')
+  async findEmployee(
     @Body() { dni: dni }: { dni: number },
     @Headers('authorization') authorization,
-  ): Promise<ResponseBoolDto> {
+  ): Promise<ResponseDataDto<User>> {
     const user = await this.userService.getByDni(dni);
     const business = await this.authzService.getCurrentBusiness(authorization);
-    if (user === null || business === null) return new ResponseBoolDto(false);
+    if (user === null || business === null)
+      return new ResponseDataDto<User>(null);
 
     if (
       user.role === UserRole.VERIFIED &&
       business.role === BusinessRole.SUBSCRIBED
     ) {
-      return new ResponseBoolDto(
-        await this.userService.setEmployed(dni, business),
-      );
-    } else return new ResponseBoolDto(false);
+      return new ResponseDataDto<User>(user);
+    } else return new ResponseDataDto<User>(null);
+  }
+
+  @Put('employee/add')
+  async addEmployee(
+    @Body() { dni: dni }: { dni: number },
+    @Headers('authorization') authorization,
+  ): Promise<ResponseDataDto<User>> {
+    const user = await this.userService.getByDni(dni);
+    const business = await this.authzService.getCurrentBusiness(authorization);
+    if (user === null || business === null)
+      return new ResponseDataDto<User>(null);
+
+    if (
+      user.role === UserRole.VERIFIED &&
+      business.role === BusinessRole.SUBSCRIBED
+    ) {
+      const success = await this.userService.setEmployed(dni, business);
+      if (success) {
+        user.role = UserRole.EMPLOYEE;
+        user.business = business;
+        return new ResponseDataDto<User>(user);
+      } else return new ResponseDataDto<User>(null);
+    } else return new ResponseDataDto<User>(null);
   }
 
   @Put('employee/remove')
