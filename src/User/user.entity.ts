@@ -26,6 +26,7 @@ export class User {
   @ManyToOne(() => Business, {
     nullable: true,
     onDelete: 'SET NULL',
+    eager: true,
   })
   @JoinColumn()
   business: Business;

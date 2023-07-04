@@ -16,6 +16,7 @@ export class Offer {
   @ManyToOne(() => Business, {
     nullable: false,
     onDelete: 'CASCADE',
+    eager: true,
   })
   @JoinColumn()
   business: Business;
@@ -23,6 +24,7 @@ export class Offer {
   @ManyToOne(() => Post, {
     nullable: false,
     onDelete: 'RESTRICT',
+    eager: true,
   })
   @JoinColumn()
   post: Post;

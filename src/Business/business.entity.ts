@@ -13,13 +13,16 @@ export class Business {
   @PrimaryColumn({ type: 'bigint' })
   cuit: number;
 
-  @OneToOne(() => Membership, (membership) => membership.business)
+  @OneToOne(() => Membership, (membership) => membership.business, {
+    eager: false,
+  })
   membership: Membership;
 
   @OneToOne(() => User, {
     nullable: false,
     onDelete: 'RESTRICT',
     cascade: true,
+    eager: false,
   })
   @JoinColumn()
   owner: User;

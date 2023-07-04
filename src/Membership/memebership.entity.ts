@@ -15,6 +15,7 @@ export class Membership {
   @OneToOne(() => Business, (business) => business.membership, {
     nullable: false,
     onDelete: 'CASCADE',
+    eager: false,
   })
   @JoinColumn()
   business: Business;
