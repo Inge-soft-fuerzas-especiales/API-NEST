@@ -47,7 +47,7 @@ export class PostService {
     business: Business,
     category: Category,
     postDto: CreatePostDto,
-  ): Promise<boolean> {
+  ): Promise<Post | null> {
     const post = this.postRepository.create({
       business: business,
       category: category,
@@ -58,10 +58,9 @@ export class PostService {
       deadline: postDto.deadline,
     });
     try {
-      await this.postRepository.insert(post);
+      return await this.postRepository.save(post);
     } catch (e) {
-      return false;
+      return null;
     }
-    return true;
   }
 }

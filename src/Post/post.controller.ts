@@ -12,10 +12,12 @@ import { PostService } from './post.service';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthzService } from '../Authz/authz.service';
 import { OfferService } from '../Offer/offer.service';
-import { ResponseBoolDto, ResponseDataDto } from '../response.dto';
+import { ResponseDataDto } from '../response.dto';
 import { BusinessRole } from '../Business/business.entity';
 import { CategoryService } from '../Category/category.service';
 import { CreatePostDto } from './create-post.dto';
+import { SearchService } from '../Search/search.service';
+import { postToSearch } from '../Search/search.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('posts')
@@ -25,6 +27,7 @@ export class PostController {
     private readonly authzService: AuthzService,
     private readonly offerService: OfferService,
     private readonly categoryService: CategoryService,
+    private readonly searchService: SearchService,
   ) {}
 
   @Get('category/:categoryId')
@@ -75,16 +78,20 @@ export class PostController {
   async createPost(
     @Body() postDto: CreatePostDto,
     @Headers('authorization') authorization,
-  ): Promise<ResponseBoolDto> {
+  ): Promise<ResponseDataDto<_Post>> {
     const business = await this.authzService.getCurrentBusiness(authorization);
     const category = await this.categoryService.getById(postDto.categoryId);
     if (business === null || category === null)
-      return new ResponseBoolDto(false);
+      return new ResponseDataDto<_Post>(null);
 
     if (business.role === BusinessRole.SUBSCRIBED) {
-      return new ResponseBoolDto(
-        await this.postService.createPost(business, category, postDto),
+      const post = await this.postService.createPost(
+        business,
+        category,
+        postDto,
       );
-    } else return new ResponseBoolDto(false);
+      await this.searchService.saveObject(postToSearch(post));
+      return new ResponseDataDto<_Post>(post);
+    } else return new ResponseDataDto<_Post>(null);
   }
 }

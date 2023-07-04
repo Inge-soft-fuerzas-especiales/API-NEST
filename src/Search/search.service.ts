@@ -8,7 +8,7 @@ export class SearchService {
   private index: SearchIndex;
 
   constructor() {
-    this.client = algolia('LDUJFS2TLL', '15debf23fc189f766185145afbe1aa94');
+    this.client = algolia('LDUJFS2TLL', '68ed5e694e3bf1a90be25cffcd4df61a');
     this.index = this.client.initIndex('Project_IPM');
   }
 
