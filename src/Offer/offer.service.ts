@@ -45,7 +45,7 @@ export class OfferService {
     business: Business,
     post: Post,
     offerDto: CreateOfferDto,
-  ): Promise<boolean> {
+  ): Promise<Offer | null> {
     const offer = this.offerRepository.create({
       business: business,
       post: post,
@@ -53,10 +53,9 @@ export class OfferService {
       description: offerDto.description,
     });
     try {
-      await this.offerRepository.insert(offer);
+      return await this.offerRepository.save(offer);
     } catch (e) {
-      return false;
+      return null;
     }
-    return true;
   }
 }

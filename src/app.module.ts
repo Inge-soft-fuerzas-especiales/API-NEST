@@ -24,6 +24,7 @@ import { MembershipController } from './Membership/membership.controller';
 import { UserController } from './User/user.controller';
 import { SearchController } from './Search/search.controller';
 import { SearchService } from './Search/search.service';
+import { NotificationService } from './Notification/notification.service';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { SearchService } from './Search/search.service';
     PostService,
     UserService,
     SearchService,
+    NotificationService,
   ],
 })
 export class AppModule {}

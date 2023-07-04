@@ -12,9 +12,10 @@ import { OfferService } from './offer.service';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthzService } from '../Authz/authz.service';
 import { PostService } from '../Post/post.service';
-import { ResponseBoolDto, ResponseDataDto } from '../response.dto';
+import { ResponseDataDto } from '../response.dto';
 import { BusinessRole } from '../Business/business.entity';
 import { CreateOfferDto } from './create-offer.dto';
+import { NotificationService } from '../Notification/notification.service';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('offers')
@@ -23,6 +24,7 @@ export class OfferController {
     private readonly offerService: OfferService,
     private readonly authzService: AuthzService,
     private readonly postService: PostService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   @Get(':postId')
@@ -64,17 +66,24 @@ export class OfferController {
   async createOffer(
     @Body() offerDto: CreateOfferDto,
     @Headers('authorization') authorization,
-  ): Promise<ResponseBoolDto> {
+  ): Promise<ResponseDataDto<Offer>> {
     const business = await this.authzService.getCurrentBusiness(authorization);
     const post = await this.postService.getById(offerDto.postId);
-    if (business === null || post === null) return new ResponseBoolDto(false);
+    if (business === null || post === null)
+      return new ResponseDataDto<Offer>(null);
 
-    if (business.cuit === post.business.cuit) return new ResponseBoolDto(false);
+    if (business.cuit === post.business.cuit)
+      return new ResponseDataDto<Offer>(null);
 
     if (business.role === BusinessRole.SUBSCRIBED) {
-      return new ResponseBoolDto(
-        await this.offerService.createOffer(business, post, offerDto),
+      const offer = await this.offerService.createOffer(
+        business,
+        post,
+        offerDto,
       );
-    } else return new ResponseBoolDto(false);
+
+      if (offer !== null) await this.notificationService.newOffer(offer);
+      return new ResponseDataDto<Offer>(offer);
+    } else return new ResponseDataDto<Offer>(null);
   }
 }
