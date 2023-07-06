@@ -25,6 +25,8 @@ import { UserController } from './User/user.controller';
 import { SearchController } from './Search/search.controller';
 import { SearchService } from './Search/search.service';
 import { NotificationService } from './Notification/notification.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { SchedulerService } from './Scheduler/scheduler.service';
 
 @Module({
   imports: [
@@ -48,6 +50,7 @@ import { NotificationService } from './Notification/notification.service';
       User,
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
+    ScheduleModule.forRoot(),
   ],
   controllers: [
     BusinessController,
@@ -70,6 +73,7 @@ import { NotificationService } from './Notification/notification.service';
     UserService,
     SearchService,
     NotificationService,
+    SchedulerService,
   ],
 })
 export class AppModule {}

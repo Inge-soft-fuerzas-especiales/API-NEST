@@ -12,7 +12,7 @@ import { OfferService } from './offer.service';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthzService } from '../Authz/authz.service';
 import { PostService } from '../Post/post.service';
-import { ResponseDataDto } from '../response.dto';
+import { ResponseDto } from '../response.dto';
 import { BusinessRole } from '../Business/business.entity';
 import { CreateOfferDto } from './create-offer.dto';
 import { NotificationService } from '../Notification/notification.service';
@@ -27,53 +27,17 @@ export class OfferController {
     private readonly notificationService: NotificationService,
   ) {}
 
-  @Get(':postId')
-  async getByPost(
-    @Param('postId') postId: number,
-    @Headers('authorization') authorization,
-  ): Promise<ResponseDataDto<Offer[]>> {
-    const business = await this.authzService.getCurrentBusiness(authorization);
-    const post = await this.postService.getById(postId);
-    if (business === null || post === null)
-      return new ResponseDataDto<Offer[]>(null);
-
-    if (business.cuit !== post.business.cuit)
-      return new ResponseDataDto<Offer[]>(null);
-
-    if (business.role === BusinessRole.SUBSCRIBED) {
-      return new ResponseDataDto<Offer[]>(
-        await this.offerService.getByPost(postId),
-      );
-    } else return new ResponseDataDto<Offer[]>(null);
-  }
-
-  @Get('owned/:postId')
-  async getByPostOffered(
-    @Param('postId') postId: number,
-    @Headers('authorization') authorization,
-  ): Promise<ResponseDataDto<Offer[]>> {
-    const business = await this.authzService.getCurrentBusiness(authorization);
-    if (business === null) return new ResponseDataDto<Offer[]>(null);
-
-    if (business.role === BusinessRole.SUBSCRIBED) {
-      return new ResponseDataDto<Offer[]>(
-        await this.offerService.getByPostOffered(postId, business.cuit),
-      );
-    } else return new ResponseDataDto<Offer[]>(null);
-  }
-
   @Post()
   async createOffer(
     @Body() offerDto: CreateOfferDto,
     @Headers('authorization') authorization,
-  ): Promise<ResponseDataDto<Offer>> {
+  ): Promise<ResponseDto<Offer>> {
     const business = await this.authzService.getCurrentBusiness(authorization);
-    const post = await this.postService.getById(offerDto.postId);
-    if (business === null || post === null)
-      return new ResponseDataDto<Offer>(null);
+    const post = await this.postService.getPostById(offerDto.postId);
+    if (business === null || post === null) return new ResponseDto<Offer>(null);
 
     if (business.cuit === post.business.cuit)
-      return new ResponseDataDto<Offer>(null);
+      return new ResponseDto<Offer>(null);
 
     if (business.role === BusinessRole.SUBSCRIBED) {
       const offer = await this.offerService.createOffer(
@@ -83,7 +47,42 @@ export class OfferController {
       );
 
       if (offer !== null) await this.notificationService.newOffer(offer);
-      return new ResponseDataDto<Offer>(offer);
-    } else return new ResponseDataDto<Offer>(null);
+      return new ResponseDto<Offer>(offer);
+    } else return new ResponseDto<Offer>(null);
+  }
+
+  @Get(':postId')
+  async getOffersByPost(
+    @Param('postId') postId: number,
+    @Headers('authorization') authorization,
+  ): Promise<ResponseDto<Offer[]>> {
+    const business = await this.authzService.getCurrentBusiness(authorization);
+    const post = await this.postService.getPostById(postId);
+    if (business === null || post === null)
+      return new ResponseDto<Offer[]>(null);
+
+    if (business.cuit !== post.business.cuit)
+      return new ResponseDto<Offer[]>(null);
+
+    if (business.role === BusinessRole.SUBSCRIBED) {
+      return new ResponseDto<Offer[]>(
+        await this.offerService.getOffersByPost(postId),
+      );
+    } else return new ResponseDto<Offer[]>(null);
+  }
+
+  @Get('owned/:postId')
+  async getMyOffersByPost(
+    @Param('postId') postId: number,
+    @Headers('authorization') authorization,
+  ): Promise<ResponseDto<Offer[]>> {
+    const business = await this.authzService.getCurrentBusiness(authorization);
+    if (business === null) return new ResponseDto<Offer[]>(null);
+
+    if (business.role === BusinessRole.SUBSCRIBED) {
+      return new ResponseDto<Offer[]>(
+        await this.offerService.getMyOffersByPost(postId, business.cuit),
+      );
+    } else return new ResponseDto<Offer[]>(null);
   }
 }

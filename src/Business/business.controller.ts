@@ -12,7 +12,7 @@ import { Business, BusinessRole } from './business.entity';
 import { AuthzService } from '../Authz/authz.service';
 import { BusinessService } from './business.service';
 import { UserService } from '../User/user.service';
-import { ResponseBoolDto, ResponseDataDto } from '../response.dto';
+import { ResponseBoolDto, ResponseDto } from '../response.dto';
 import { User, UserRole } from '../User/user.entity';
 
 @UseGuards(AuthGuard('jwt'))
@@ -25,25 +25,25 @@ export class BusinessController {
   ) {}
 
   @Post()
-  async create(
+  async createBusiness(
     @Body() { name: name, cuit: cuit }: { name: string; cuit: number },
     @Headers('authorization') authorization,
-  ): Promise<ResponseBoolDto> {
+  ): Promise<ResponseDto<Business>> {
     const user = await this.authzService.getCurrentUser(authorization);
-    if (user === null) return new ResponseBoolDto(false);
+    if (user === null) return new ResponseDto<Business>(null);
 
     if (user.role === UserRole.VERIFIED) {
-      return new ResponseBoolDto(
+      return new ResponseDto<Business>(
         await this.businessService.create(cuit, name, user),
       );
-    } else return new ResponseBoolDto(false);
+    } else return new ResponseDto<Business>(null);
   }
 
   @Get()
-  async getOwn(
+  async getBusiness(
     @Headers('authorization') authorization,
-  ): Promise<ResponseDataDto<Business>> {
-    return new ResponseDataDto(
+  ): Promise<ResponseDto<Business>> {
+    return new ResponseDto(
       await this.authzService.getCurrentBusiness(authorization),
     );
   }
@@ -51,47 +51,45 @@ export class BusinessController {
   @Get('employee')
   async getEmployees(
     @Headers('authorization') authorization,
-  ): Promise<ResponseDataDto<User[]>> {
+  ): Promise<ResponseDto<User[]>> {
     const user = await this.authzService.getCurrentUser(authorization);
-    if (user === null) return new ResponseDataDto<User[]>(null);
+    if (user === null) return new ResponseDto<User[]>(null);
 
     if (
       user.role === UserRole.OWNER &&
       user.business.role !== BusinessRole.UNVERIFIED
     ) {
-      return new ResponseDataDto<User[]>(
+      return new ResponseDto<User[]>(
         await this.userService.getEmployees(user.business.cuit),
       );
-    } else return new ResponseDataDto<User[]>(null);
+    } else return new ResponseDto<User[]>(null);
   }
 
   @Put('employee')
   async findEmployee(
     @Body() { dni: dni }: { dni: number },
     @Headers('authorization') authorization,
-  ): Promise<ResponseDataDto<User>> {
-    const user = await this.userService.getByDni(dni);
+  ): Promise<ResponseDto<User>> {
+    const user = await this.userService.getUserByDni(dni);
     const business = await this.authzService.getCurrentBusiness(authorization);
-    if (user === null || business === null)
-      return new ResponseDataDto<User>(null);
+    if (user === null || business === null) return new ResponseDto<User>(null);
 
     if (
       user.role === UserRole.VERIFIED &&
       business.role === BusinessRole.SUBSCRIBED
     ) {
-      return new ResponseDataDto<User>(user);
-    } else return new ResponseDataDto<User>(null);
+      return new ResponseDto<User>(user);
+    } else return new ResponseDto<User>(null);
   }
 
   @Put('employee/add')
   async addEmployee(
     @Body() { dni: dni }: { dni: number },
     @Headers('authorization') authorization,
-  ): Promise<ResponseDataDto<User>> {
-    const user = await this.userService.getByDni(dni);
+  ): Promise<ResponseDto<User>> {
+    const user = await this.userService.getUserByDni(dni);
     const business = await this.authzService.getCurrentBusiness(authorization);
-    if (user === null || business === null)
-      return new ResponseDataDto<User>(null);
+    if (user === null || business === null) return new ResponseDto<User>(null);
 
     if (
       user.role === UserRole.VERIFIED &&
@@ -101,19 +99,19 @@ export class BusinessController {
       if (success) {
         user.role = UserRole.EMPLOYEE;
         user.business = business;
-        return new ResponseDataDto<User>(user);
-      } else return new ResponseDataDto<User>(null);
-    } else return new ResponseDataDto<User>(null);
+        return new ResponseDto<User>(user);
+      } else return new ResponseDto<User>(null);
+    } else return new ResponseDto<User>(null);
   }
 
   @Put('employee/remove')
   async removeEmployee(
     @Body() { dni: dni }: { dni: number },
     @Headers('authorization') authorization,
-  ): Promise<ResponseBoolDto> {
-    const user = await this.userService.getByDni(dni);
+  ): Promise<ResponseDto<User>> {
+    const user = await this.userService.getUserByDni(dni);
     const business = await this.authzService.getCurrentBusiness(authorization);
-    if (user === null || business === null) return new ResponseBoolDto(false);
+    if (user === null || business === null) return new ResponseDto<User>(null);
 
     if (
       user.role === UserRole.EMPLOYEE &&
@@ -121,23 +119,23 @@ export class BusinessController {
         business.role === BusinessRole.SUBSCRIBED)
     ) {
       if (user.business.cuit === business.cuit)
-        return new ResponseBoolDto(await this.userService.clearEmployed(dni));
-      else return new ResponseBoolDto(false);
-    } else return new ResponseBoolDto(false);
+        return new ResponseDto<User>(await this.userService.clearEmployed(dni));
+      else return new ResponseDto<User>(null);
+    } else return new ResponseDto<User>(null);
   }
 
   @Get('verify')
-  async getUnverified(
+  async getUnverifiedBusinesses(
     @Headers('authorization') authorization,
-  ): Promise<ResponseDataDto<Business[]>> {
+  ): Promise<ResponseDto<Business[]>> {
     const user = await this.authzService.getCurrentUser(authorization);
-    if (user === null) return new ResponseDataDto<Business[]>(null);
+    if (user === null) return new ResponseDto<Business[]>(null);
 
     if (user.role === UserRole.ADMIN) {
-      return new ResponseDataDto<Business[]>(
-        await this.businessService.getUnverified(),
+      return new ResponseDto<Business[]>(
+        await this.businessService.getUnverifiedBusinesses(),
       );
-    } else return new ResponseDataDto<Business[]>(null);
+    } else return new ResponseDto<Business[]>(null);
   }
 
   @Put('verify')
@@ -146,14 +144,16 @@ export class BusinessController {
     @Headers('authorization') authorization,
   ): Promise<ResponseBoolDto> {
     const user = await this.authzService.getCurrentUser(authorization);
-    const business = await this.businessService.getByCuit(cuit);
+    const business = await this.businessService.getBusinessByCuit(cuit);
     if (user === null || business === null) return new ResponseBoolDto(false);
 
     if (
       user.role === UserRole.ADMIN &&
       business.role === BusinessRole.UNVERIFIED
     ) {
-      return new ResponseBoolDto(await this.businessService.verify(cuit));
+      return new ResponseBoolDto(
+        await this.businessService.verifyBusiness(cuit),
+      );
     } else return new ResponseBoolDto(false);
   }
 }

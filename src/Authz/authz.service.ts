@@ -29,7 +29,7 @@ export class AuthzService {
     if (user === null) return null;
 
     if (user.role === UserRole.OWNER || user.role === UserRole.EMPLOYEE) {
-      return await this.businessService.getByCuit(user.business.cuit);
+      return await this.businessService.getBusinessByCuit(user.business.cuit);
     } else return null;
   }
 }

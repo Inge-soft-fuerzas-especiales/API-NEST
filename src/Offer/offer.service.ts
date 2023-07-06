@@ -13,7 +13,7 @@ export class OfferService {
     private offerRepository: Repository<Offer>,
   ) {}
 
-  getByPost(postId: number): Promise<Offer[]> {
+  getOffersByPost(postId: number): Promise<Offer[]> {
     return this.offerRepository.find({
       where: {
         post: { id: postId },
@@ -22,7 +22,7 @@ export class OfferService {
     });
   }
 
-  getByBusiness(cuit: number): Promise<Offer[]> {
+  getOffersByBusiness(cuit: number): Promise<Offer[]> {
     return this.offerRepository.find({
       where: {
         business: { cuit: cuit },
@@ -31,7 +31,7 @@ export class OfferService {
     });
   }
 
-  getByPostOffered(postId: number, cuit: number): Promise<Offer[]> {
+  getMyOffersByPost(postId: number, cuit: number): Promise<Offer[]> {
     return this.offerRepository.find({
       where: {
         post: { id: postId },
@@ -57,5 +57,14 @@ export class OfferService {
     } catch (e) {
       return null;
     }
+  }
+
+  async deleteOffersByPost(postId: number): Promise<boolean> {
+    try {
+      await this.offerRepository.delete({ post: { id: postId } });
+    } catch (e) {
+      return false;
+    }
+    return true;
   }
 }

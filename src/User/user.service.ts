@@ -16,7 +16,7 @@ export class UserService {
     dni: number,
     name: string,
     surname: string,
-  ): Promise<boolean> {
+  ): Promise<User> {
     const user = this.userRepository.create({
       authzId: authzId,
       dni: dni,
@@ -24,11 +24,10 @@ export class UserService {
       surname: surname,
     });
     try {
-      await this.userRepository.insert(user);
+      return await this.userRepository.save(user);
     } catch (e) {
-      return false;
+      return null;
     }
-    return true;
   }
 
   getByAuthzId(authzId: string): Promise<User> {
@@ -38,20 +37,20 @@ export class UserService {
     });
   }
 
-  getByDni(dni: number): Promise<User> {
+  getUserByDni(dni: number): Promise<User> {
     return this.userRepository.findOne({
       where: { dni: dni },
       relations: ['business'],
     });
   }
 
-  getUnverified(): Promise<User[]> {
+  getUnverifiedUsers(): Promise<User[]> {
     return this.userRepository.find({
       where: { role: UserRole.UNVERIFIED },
     });
   }
 
-  async verify(dni: number): Promise<boolean> {
+  async verifyUser(dni: number): Promise<boolean> {
     try {
       await this.userRepository.update(
         { dni: dni },
@@ -69,27 +68,27 @@ export class UserService {
     });
   }
 
-  async setEmployed(dni: number, business: Business): Promise<boolean> {
+  async setEmployed(dni: number, business: Business): Promise<User> {
     try {
-      await this.userRepository.update(
-        { dni: dni },
-        { business: business, role: UserRole.EMPLOYEE },
-      );
+      return await this.userRepository.save({
+        dni: dni,
+        business: business,
+        role: UserRole.EMPLOYEE,
+      });
     } catch (e) {
-      return false;
+      return null;
     }
-    return true;
   }
 
-  async clearEmployed(dni: number): Promise<boolean> {
+  async clearEmployed(dni: number): Promise<User> {
     try {
-      await this.userRepository.update(
-        { dni: dni },
-        { business: null, role: UserRole.VERIFIED },
-      );
+      return await this.userRepository.save({
+        dni: dni,
+        business: null,
+        role: UserRole.VERIFIED,
+      });
     } catch (e) {
-      return false;
+      return null;
     }
-    return true;
   }
 }

@@ -10,21 +10,20 @@ export class CategoryService {
     private categoryRepository: Repository<Category>,
   ) {}
 
-  getAll(): Promise<Category[]> {
+  getAllCategories(): Promise<Category[]> {
     return this.categoryRepository.find();
   }
 
-  getById(categoryId: number): Promise<Category> {
+  getCategoryById(categoryId: number): Promise<Category> {
     return this.categoryRepository.findOneBy({ id: categoryId });
   }
 
-  async createCategory(name: string): Promise<boolean> {
+  async createCategory(name: string): Promise<Category> {
     const category = this.categoryRepository.create({ name: name });
     try {
-      await this.categoryRepository.insert(category);
+      return await this.categoryRepository.save(category);
     } catch (e) {
-      return false;
+      return null;
     }
-    return true;
   }
 }

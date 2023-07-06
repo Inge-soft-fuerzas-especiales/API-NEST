@@ -11,7 +11,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthzService } from '../Authz/authz.service';
 import { User, UserRole } from './user.entity';
 import { UserService } from './user.service';
-import { ResponseBoolDto, ResponseDataDto } from '../response.dto';
+import { ResponseBoolDto, ResponseDto } from '../response.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('user')
@@ -30,35 +30,35 @@ export class UserController {
       surname: surname,
     }: { dni: number; name: string; surname: string },
     @Headers('authorization') authorization,
-  ): Promise<ResponseBoolDto> {
+  ): Promise<ResponseDto<User>> {
     const authzId = this.authzService.getUserAuthzId(authorization);
 
-    return new ResponseBoolDto(
+    return new ResponseDto<User>(
       await this.userService.createUser(authzId, dni, name, surname),
     );
   }
 
   @Get()
-  async getOwn(
+  async getUser(
     @Headers('authorization') authorization,
-  ): Promise<ResponseDataDto<User>> {
-    return new ResponseDataDto<User>(
+  ): Promise<ResponseDto<User>> {
+    return new ResponseDto<User>(
       await this.authzService.getCurrentUser(authorization),
     );
   }
 
   @Get('verify')
-  async getUnverified(
+  async getUnverifiedUsers(
     @Headers('authorization') authorization,
-  ): Promise<ResponseDataDto<User[]>> {
+  ): Promise<ResponseDto<User[]>> {
     const user = await this.authzService.getCurrentUser(authorization);
-    if (user === null) return new ResponseDataDto<User[]>(null);
+    if (user === null) return new ResponseDto<User[]>(null);
 
     if (user.role === UserRole.ADMIN) {
-      return new ResponseDataDto<User[]>(
-        await this.userService.getUnverified(),
+      return new ResponseDto<User[]>(
+        await this.userService.getUnverifiedUsers(),
       );
-    } else return new ResponseDataDto<User[]>(null);
+    } else return new ResponseDto<User[]>(null);
   }
 
   @Put('verify')
@@ -67,11 +67,11 @@ export class UserController {
     @Headers('authorization') authorization,
   ): Promise<ResponseBoolDto> {
     const user = await this.authzService.getCurrentUser(authorization);
-    const target = await this.userService.getByDni(dni);
+    const target = await this.userService.getUserByDni(dni);
     if (user === null || target === null) return new ResponseBoolDto(false);
 
     if (user.role === UserRole.ADMIN && target.role === UserRole.UNVERIFIED) {
-      return new ResponseBoolDto(await this.userService.verify(dni));
+      return new ResponseBoolDto(await this.userService.verifyUser(dni));
     } else return new ResponseBoolDto(false);
   }
 }

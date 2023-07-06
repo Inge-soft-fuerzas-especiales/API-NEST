@@ -11,8 +11,8 @@ export class BusinessService {
     private businessRepository: Repository<Business>,
   ) {}
 
-  async create(cuit: number, name: string, owner: User): Promise<boolean> {
-    if ((await this.getByCuit(cuit)) !== null) return false;
+  async create(cuit: number, name: string, owner: User): Promise<Business> {
+    if ((await this.getBusinessByCuit(cuit)) !== null) return null;
 
     owner.role = UserRole.OWNER;
     const business = this.businessRepository.create({
@@ -21,32 +21,35 @@ export class BusinessService {
       owner: owner,
     });
     try {
-      await this.businessRepository.save(business);
+      return await this.businessRepository.save(business);
     } catch (e) {
-      return false;
+      return null;
     }
-    return true;
   }
 
-  getByCuit(cuit: number): Promise<Business> {
+  getBusinessByCuit(cuit: number): Promise<Business> {
     return this.businessRepository.findOne({
       where: { cuit: cuit },
       relations: ['owner', 'membership'],
     });
   }
 
-  getUnverified(): Promise<Business[]> {
+  getUnverifiedBusinesses(): Promise<Business[]> {
     return this.businessRepository.find({
       where: { role: BusinessRole.UNVERIFIED },
       relations: ['owner'],
     });
   }
 
-  async verify(cuit: number): Promise<boolean> {
+  async verifyBusiness(cuit: number): Promise<boolean> {
     try {
       await this.businessRepository.update(
-        { cuit: cuit },
-        { role: BusinessRole.VERIFIED },
+        {
+          cuit: cuit,
+        },
+        {
+          role: BusinessRole.VERIFIED,
+        },
       );
     } catch (e) {
       return false;

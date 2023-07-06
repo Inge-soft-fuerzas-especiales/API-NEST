@@ -6,7 +6,7 @@ export class ResponseBoolDto {
   }
 }
 
-export class ResponseDataDto<T> {
+export class ResponseDto<T> {
   content: T | null;
 
   constructor(data: T | null) {

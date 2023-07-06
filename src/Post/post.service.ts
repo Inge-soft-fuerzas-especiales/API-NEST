@@ -21,14 +21,14 @@ export class PostService {
     });
   }
 
-  getById(postId: number): Promise<Post> {
+  getPostById(postId: number): Promise<Post> {
     return this.postRepository.findOne({
       where: { id: postId },
       relations: ['business', 'category'],
     });
   }
 
-  getByOffers(offers: Offer[]): Promise<Post[]> {
+  getPostsByOffers(offers: Offer[]): Promise<Post[]> {
     const postIds = offers.map((offer) => offer.post.id);
     return this.postRepository.find({
       where: { id: In(postIds) },
@@ -36,7 +36,7 @@ export class PostService {
     });
   }
 
-  getByBusiness(cuit: number): Promise<Post[]> {
+  getPostsByBusiness(cuit: number): Promise<Post[]> {
     return this.postRepository.find({
       where: { business: { cuit: cuit } },
       relations: ['business', 'category'],
@@ -62,5 +62,9 @@ export class PostService {
     } catch (e) {
       return null;
     }
+  }
+
+  async deletePost(id: number) {
+    await this.postRepository.delete({ id: id });
   }
 }
