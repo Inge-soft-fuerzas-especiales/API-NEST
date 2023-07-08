@@ -95,12 +95,9 @@ export class BusinessController {
       user.role === UserRole.VERIFIED &&
       business.role === BusinessRole.SUBSCRIBED
     ) {
-      const success = await this.userService.setEmployed(dni, business);
-      if (success) {
-        user.role = UserRole.EMPLOYEE;
-        user.business = business;
-        return new ResponseDto<User>(user);
-      } else return new ResponseDto<User>(null);
+      return new ResponseDto<User>(
+        await this.userService.setEmployed(dni, business),
+      );
     } else return new ResponseDto<User>(null);
   }
 

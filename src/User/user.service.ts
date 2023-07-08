@@ -69,26 +69,22 @@ export class UserService {
   }
 
   async setEmployed(dni: number, business: Business): Promise<User> {
-    try {
-      return await this.userRepository.save({
-        dni: dni,
-        business: business,
-        role: UserRole.EMPLOYEE,
-      });
-    } catch (e) {
-      return null;
-    }
+    const user = await this.userRepository.preload({
+      dni: dni,
+      business: business,
+      role: UserRole.EMPLOYEE,
+    });
+
+    return await this.userRepository.save(user);
   }
 
   async clearEmployed(dni: number): Promise<User> {
-    try {
-      return await this.userRepository.save({
-        dni: dni,
-        business: null,
-        role: UserRole.VERIFIED,
-      });
-    } catch (e) {
-      return null;
-    }
+    const user = await this.userRepository.preload({
+      dni: dni,
+      business: null,
+      role: UserRole.VERIFIED,
+    });
+
+    return await this.userRepository.save(user);
   }
 }
