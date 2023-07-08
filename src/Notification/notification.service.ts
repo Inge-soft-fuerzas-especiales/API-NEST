@@ -21,6 +21,34 @@ export class NotificationService {
     });
   }
 
+  async cancelledOffer(offer: Offer) {
+    const novu = new Novu(this.apiKey);
+
+    await novu.trigger('cancelled-offer', {
+      to: {
+        subscriberId: offer.post.business.cuit.toString(),
+      },
+      payload: {
+        postItem: offer.post.item,
+        businessName: offer.business.name,
+      },
+    });
+  }
+
+  async selectedOffer(post: Post, offer: Offer) {
+    const novu = new Novu(this.apiKey);
+
+    await novu.trigger('selected-offer', {
+      to: {
+        subscriberId: offer.business.cuit.toString(),
+      },
+      payload: {
+        postItem: post.item,
+        businessName: post.business.name,
+      },
+    });
+  }
+
   async expiredPost(post: Post) {
     const novu = new Novu(this.apiKey);
 

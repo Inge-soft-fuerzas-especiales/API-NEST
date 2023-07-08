@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { Post } from './post.entity';
+import { Post, PostState } from './post.entity';
 import { Offer } from '../Offer/offer.entity';
 import { Business } from '../Business/business.entity';
 import { Category } from '../Category/category.entity';
@@ -14,13 +14,6 @@ export class PostService {
     private postRepository: Repository<Post>,
   ) {}
 
-  getByCategory(categoryId: number): Promise<Post[]> {
-    return this.postRepository.find({
-      where: { category: { id: categoryId } },
-      relations: ['business', 'category'],
-    });
-  }
-
   getPostById(postId: number): Promise<Post> {
     return this.postRepository.findOne({
       where: { id: postId },
@@ -32,14 +25,14 @@ export class PostService {
     const postIds = offers.map((offer) => offer.post.id);
     return this.postRepository.find({
       where: { id: In(postIds) },
-      relations: ['business', 'category'],
+      relations: ['business', 'category', 'selected'],
     });
   }
 
   getPostsByBusiness(cuit: number): Promise<Post[]> {
     return this.postRepository.find({
       where: { business: { cuit: cuit } },
-      relations: ['business', 'category'],
+      relations: ['business', 'category', 'selected'],
     });
   }
 
@@ -64,7 +57,17 @@ export class PostService {
     }
   }
 
-  async deletePost(id: number) {
-    await this.postRepository.delete({ id: id });
+  async cancelPost(id: number) {
+    await this.postRepository.update(
+      { id: id },
+      { state: PostState.CANCELLED },
+    );
+  }
+
+  async closePost(postId: number, offer: Offer) {
+    await this.postRepository.update(
+      { id: postId },
+      { state: PostState.CLOSED, selected: offer },
+    );
   }
 }

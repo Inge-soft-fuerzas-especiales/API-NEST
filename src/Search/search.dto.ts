@@ -1,6 +1,7 @@
-import { Post } from '../Post/post.entity';
+import { Post, PostState } from '../Post/post.entity';
 import { Business } from '../Business/business.entity';
 import { Category } from '../Category/category.entity';
+import { Offer } from '../Offer/offer.entity';
 
 export class SearchDto {
   objectID: string;
@@ -11,6 +12,8 @@ export class SearchDto {
   budgetMax: number;
   description: string;
   deadline: Date;
+  selected: Offer;
+  state: PostState;
 }
 
 export function searchToPost(search: SearchDto): Post {

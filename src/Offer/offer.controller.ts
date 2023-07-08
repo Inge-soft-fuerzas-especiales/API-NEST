@@ -7,15 +7,16 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { Offer } from './offer.entity';
+import { Offer, OfferState } from './offer.entity';
 import { OfferService } from './offer.service';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthzService } from '../Authz/authz.service';
 import { PostService } from '../Post/post.service';
-import { ResponseDto } from '../response.dto';
+import { ResponseBoolDto, ResponseDto } from '../response.dto';
 import { BusinessRole } from '../Business/business.entity';
 import { CreateOfferDto } from './create-offer.dto';
 import { NotificationService } from '../Notification/notification.service';
+import { PostState } from '../Post/post.entity';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('offers')
@@ -39,7 +40,10 @@ export class OfferController {
     if (business.cuit === post.business.cuit)
       return new ResponseDto<Offer>(null);
 
-    if (business.role === BusinessRole.SUBSCRIBED) {
+    if (
+      business.role === BusinessRole.SUBSCRIBED &&
+      post.state === PostState.OPEN
+    ) {
       const offer = await this.offerService.createOffer(
         business,
         post,
@@ -84,5 +88,28 @@ export class OfferController {
         await this.offerService.getMyOffersByPost(postId, business.cuit),
       );
     } else return new ResponseDto<Offer[]>(null);
+  }
+
+  @Post('cancel')
+  async cancelOffer(
+    @Body() { offerId: offerId }: { offerId: number },
+    @Headers('authorization') authorization,
+  ): Promise<ResponseBoolDto> {
+    const business = await this.authzService.getCurrentBusiness(authorization);
+    const offer = await this.offerService.getOfferById(offerId);
+    if (business === null || offer === null) return new ResponseBoolDto(false);
+
+    if (offer.business.cuit !== business.cuit)
+      return new ResponseBoolDto(false);
+
+    if (
+      business.role === BusinessRole.SUBSCRIBED &&
+      offer.post.state === PostState.OPEN &&
+      offer.state === OfferState.OPEN
+    ) {
+      await this.offerService.cancelOffer(offerId);
+      await this.notificationService.cancelledOffer(offer);
+      return new ResponseBoolDto(true);
+    } else return new ResponseBoolDto(false);
   }
 }

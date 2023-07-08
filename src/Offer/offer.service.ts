@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Offer } from './offer.entity';
+import { Offer, OfferState } from './offer.entity';
 import { Business } from '../Business/business.entity';
 import { Post } from '../Post/post.entity';
 import { CreateOfferDto } from './create-offer.dto';
@@ -12,6 +12,13 @@ export class OfferService {
     @InjectRepository(Offer)
     private offerRepository: Repository<Offer>,
   ) {}
+
+  getOfferById(offerId: number): Promise<Offer> {
+    return this.offerRepository.findOne({
+      where: { id: offerId },
+      relations: ['business', 'post'],
+    });
+  }
 
   getOffersByPost(postId: number): Promise<Offer[]> {
     return this.offerRepository.find({
@@ -31,8 +38,8 @@ export class OfferService {
     });
   }
 
-  getMyOffersByPost(postId: number, cuit: number): Promise<Offer[]> {
-    return this.offerRepository.find({
+  async getMyOffersByPost(postId: number, cuit: number): Promise<Offer[]> {
+    return await this.offerRepository.find({
       where: {
         post: { id: postId },
         business: { cuit: cuit },
@@ -45,26 +52,20 @@ export class OfferService {
     business: Business,
     post: Post,
     offerDto: CreateOfferDto,
-  ): Promise<Offer | null> {
+  ): Promise<Offer> {
     const offer = this.offerRepository.create({
       business: business,
       post: post,
       price: offerDto.price,
       description: offerDto.description,
     });
-    try {
-      return await this.offerRepository.save(offer);
-    } catch (e) {
-      return null;
-    }
+    return await this.offerRepository.save(offer);
   }
 
-  async deleteOffersByPost(postId: number): Promise<boolean> {
-    try {
-      await this.offerRepository.delete({ post: { id: postId } });
-    } catch (e) {
-      return false;
-    }
-    return true;
+  async cancelOffer(offerId: number) {
+    await this.offerRepository.update(
+      { id: offerId },
+      { state: OfferState.CANCELLED },
+    );
   }
 }

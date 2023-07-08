@@ -3,10 +3,18 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Business } from '../Business/business.entity';
 import { Category } from '../Category/category.entity';
+import { Offer } from '../Offer/offer.entity';
+
+export enum PostState {
+  OPEN = 'open',
+  CLOSED = 'closed',
+  CANCELLED = 'cancelled',
+}
 
 @Entity()
 export class Post {
@@ -43,4 +51,15 @@ export class Post {
 
   @Column({ type: 'date' })
   deadline: Date;
+
+  @OneToOne(() => Offer, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    eager: false,
+  })
+  @JoinColumn()
+  selected: Offer;
+
+  @Column({ type: 'enum', enum: PostState, default: PostState.OPEN })
+  state: PostState;
 }

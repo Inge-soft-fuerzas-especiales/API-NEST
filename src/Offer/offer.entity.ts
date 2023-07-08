@@ -8,6 +8,11 @@ import {
 import { Post } from '../Post/post.entity';
 import { Business } from '../Business/business.entity';
 
+export enum OfferState {
+  OPEN = 'open',
+  CANCELLED = 'cancelled',
+}
+
 @Entity()
 export class Offer {
   @PrimaryGeneratedColumn()
@@ -34,4 +39,7 @@ export class Offer {
 
   @Column({ type: 'text' })
   description: string;
+
+  @Column({ type: 'enum', enum: OfferState, default: OfferState.OPEN })
+  state: OfferState;
 }
