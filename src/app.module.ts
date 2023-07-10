@@ -22,18 +22,24 @@ import { MembershipService } from './Membership/membership.service';
 import { BusinessController } from './Business/business.controller';
 import { MembershipController } from './Membership/membership.controller';
 import { UserController } from './User/user.controller';
+import { SearchController } from './Search/search.controller';
+import { SearchService } from './Search/search.service';
+import { NotificationService } from './Notification/notification.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { SchedulerService } from './Scheduler/scheduler.service';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mssql',
-      host: 'fuerzasespeciales-ingesoft.database.windows.net',
-      port: 1433,
-      username: 'ingesoftadmin',
-      password: 'tequeremosbotti<3',
-      database: 'IngeSoft-FuerzasEspeciales',
+      type: 'postgres',
+      host: 'ep-empty-fog-495166.us-east-1.postgres.vercel-storage.com',
+      port: 5432,
+      username: 'default',
+      password: 'Ljz3mDWYlb8Z',
+      database: 'verceldb',
       entities: [Business, Category, Membership, Offer, Post, User],
       synchronize: true,
+      ssl: true,
     }),
     TypeOrmModule.forFeature([
       Business,
@@ -44,6 +50,7 @@ import { UserController } from './User/user.controller';
       User,
     ]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
+    ScheduleModule.forRoot(),
   ],
   controllers: [
     BusinessController,
@@ -52,6 +59,7 @@ import { UserController } from './User/user.controller';
     OfferController,
     PostController,
     UserController,
+    SearchController,
   ],
   providers: [
     AuthzService,
@@ -63,6 +71,9 @@ import { UserController } from './User/user.controller';
     OfferService,
     PostService,
     UserService,
+    SearchService,
+    NotificationService,
+    SchedulerService,
   ],
 })
 export class AppModule {}

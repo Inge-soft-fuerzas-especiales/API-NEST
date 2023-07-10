@@ -1,35 +1,45 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Post } from '../Post/post.entity';
 import { Business } from '../Business/business.entity';
 
+export enum OfferState {
+  OPEN = 'open',
+  CANCELLED = 'cancelled',
+}
+
 @Entity()
 export class Offer {
-  @PrimaryGeneratedColumn({ name: 'offer_id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Business, (business) => business.offers, {
+  @ManyToOne(() => Business, {
     nullable: false,
     onDelete: 'CASCADE',
+    eager: true,
   })
-  @JoinColumn({ name: 'business_id' })
+  @JoinColumn()
   business: Business;
 
-  @ManyToOne(() => Post, (post) => post.offers, {
+  @ManyToOne(() => Post, {
     nullable: false,
-    onDelete: 'NO ACTION',
+    onDelete: 'RESTRICT',
+    eager: true,
   })
-  @JoinColumn({ name: 'post_id' })
+  @JoinColumn()
   post: Post;
 
   @Column()
   price: number;
 
   @Column({ type: 'text' })
-  additional_information: string;
+  description: string;
+
+  @Column({ type: 'enum', enum: OfferState, default: OfferState.OPEN })
+  state: OfferState;
 }

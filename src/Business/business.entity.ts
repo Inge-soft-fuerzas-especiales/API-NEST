@@ -1,47 +1,39 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  OneToMany,
-  OneToOne,
-  JoinColumn,
-  Column,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { User } from '../User/user.entity';
-import { Post } from '../Post/post.entity';
-import { Offer } from '../Offer/offer.entity';
 import { Membership } from '../Membership/memebership.entity';
+
+export enum BusinessRole {
+  UNVERIFIED = 'unverified',
+  VERIFIED = 'verified',
+  SUBSCRIBED = 'subscribed',
+}
 
 @Entity()
 export class Business {
-  @PrimaryGeneratedColumn({ name: 'business_id' })
-  id: number;
+  @PrimaryColumn({ type: 'bigint' })
+  cuit: number;
 
   @OneToOne(() => Membership, (membership) => membership.business, {
-    nullable: true,
-    onDelete: 'SET NULL',
+    eager: false,
   })
-  @JoinColumn({ name: 'membership_id' })
   membership: Membership;
 
-  @OneToOne(() => User, (user) => user.owns, {
+  @OneToOne(() => User, {
     nullable: false,
-    onDelete: 'NO ACTION',
+    onDelete: 'RESTRICT',
+    cascade: true,
+    eager: false,
   })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn()
   owner: User;
 
   @Column({ unique: true })
   name: string;
 
-  @Column()
-  cuit: number;
-
-  @OneToMany(() => User, (user) => user.employed_at)
-  employees: User[];
-
-  @OneToMany(() => Post, (post) => post.business)
-  posts: Post[];
-
-  @OneToMany(() => Offer, (offer) => offer.business)
-  offers: Offer[];
+  @Column({
+    type: 'enum',
+    enum: BusinessRole,
+    default: BusinessRole.UNVERIFIED,
+  })
+  role: BusinessRole;
 }

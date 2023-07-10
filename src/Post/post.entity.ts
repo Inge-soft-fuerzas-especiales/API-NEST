@@ -1,35 +1,40 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
-  OneToMany,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Offer } from '../Offer/offer.entity';
 import { Business } from '../Business/business.entity';
 import { Category } from '../Category/category.entity';
+import { Offer } from '../Offer/offer.entity';
+
+export enum PostState {
+  OPEN = 'open',
+  CLOSED = 'closed',
+  CANCELLED = 'cancelled',
+}
 
 @Entity()
 export class Post {
-  @PrimaryGeneratedColumn({ name: 'post_id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Business, (business) => business.posts, {
+  @ManyToOne(() => Business, {
     nullable: false,
     onDelete: 'CASCADE',
+    eager: true,
   })
-  @JoinColumn({ name: 'business_id' })
+  @JoinColumn()
   business: Business;
-
-  @OneToMany(() => Offer, (offer) => offer.post)
-  offers: Offer[];
 
   @ManyToOne(() => Category, {
     nullable: true,
     onDelete: 'SET NULL',
+    eager: true,
   })
-  @JoinColumn({ name: 'category_id' })
+  @JoinColumn()
   category: Category;
 
   @Column()
@@ -38,12 +43,23 @@ export class Post {
   @Column({ type: 'text' })
   description: string;
 
-  @Column({ type: 'money' })
-  budget_min: number;
+  @Column()
+  budgetMin: number;
 
-  @Column({ type: 'money' })
-  budget_max: number;
+  @Column()
+  budgetMax: number;
 
   @Column({ type: 'date' })
   deadline: Date;
+
+  @OneToOne(() => Offer, {
+    nullable: true,
+    onDelete: 'SET NULL',
+    eager: false,
+  })
+  @JoinColumn()
+  selected: Offer;
+
+  @Column({ type: 'enum', enum: PostState, default: PostState.OPEN })
+  state: PostState;
 }

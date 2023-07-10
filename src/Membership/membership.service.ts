@@ -10,9 +10,5 @@ export class MembershipService {
     private membershipRepository: Repository<Membership>,
   ) {}
 
-  getByBusiness(business_id: number): Promise<Membership> {
-    return this.membershipRepository.findOneBy({
-      business: { id: business_id },
-    });
-  }
+  // TODO: Membership management
 }

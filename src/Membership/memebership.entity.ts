@@ -1,16 +1,27 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Business } from '../Business/business.entity';
 
 @Entity()
 export class Membership {
-  @PrimaryGeneratedColumn({ name: 'membership_id' })
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Business, (business) => business.membership)
+  @OneToOne(() => Business, (business) => business.membership, {
+    nullable: false,
+    onDelete: 'CASCADE',
+    eager: false,
+  })
+  @JoinColumn()
   business: Business;
 
   @Column()
-  expiration_date: Date;
+  expiration: Date;
 
   @Column()
   level: number;

@@ -1,31 +1,36 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  OneToOne,
-  JoinColumn,
-  Column,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Business } from '../Business/business.entity';
+
+export enum UserRole {
+  UNVERIFIED = 'unverified',
+  VERIFIED = 'verified',
+  OWNER = 'owner',
+  EMPLOYEE = 'employee',
+  ADMIN = 'admin',
+}
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn({ name: 'user_id' })
-  id: number;
-
-  @Column({ unique: true })
-  authz_id: string;
-
-  @Column({ nullable: true })
+  @PrimaryColumn({ type: 'bigint' })
   dni: number;
 
-  @ManyToOne(() => Business, (business) => business.employees, {
+  @Column()
+  name: string;
+
+  @Column()
+  surname: string;
+
+  @Column({ unique: true })
+  authzId: string;
+
+  @ManyToOne(() => Business, {
     nullable: true,
     onDelete: 'SET NULL',
+    eager: true,
   })
-  @JoinColumn({ name: 'business' })
-  employed_at: Business;
+  @JoinColumn()
+  business: Business;
 
-  @OneToOne(() => Business, (business) => business.owner)
-  owns: Business;
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.UNVERIFIED })
+  role: UserRole;
 }
