@@ -32,11 +32,11 @@ import { SchedulerService } from './Scheduler/scheduler.service';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'ep-empty-fog-495166.us-east-1.postgres.vercel-storage.com',
+      host: process.env.DB_HOST,
       port: 5432,
-      username: 'default',
-      password: 'Ljz3mDWYlb8Z',
-      database: 'verceldb',
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       entities: [Business, Category, Membership, Offer, Post, User],
       synchronize: true,
       ssl: true,

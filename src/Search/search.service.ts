@@ -8,8 +8,8 @@ export class SearchService {
   private index: SearchIndex;
 
   constructor() {
-    this.client = algolia('LDUJFS2TLL', '68ed5e694e3bf1a90be25cffcd4df61a');
-    this.index = this.client.initIndex('Project_IPM');
+    this.client = algolia(process.env.ALGOLIA_ID, process.env.ALGOLIA_KEY);
+    this.index = this.client.initIndex(process.env.ALGOLIA_INDEX);
   }
 
   async search(query: string) {

@@ -5,7 +5,7 @@ import { Post } from '../Post/post.entity';
 
 @Injectable()
 export class NotificationService {
-  private apiKey = '392b8bcec4cb70ce8dd8b9125690cb3f';
+  private apiKey = process.env.NOVU_KEY;
 
   async newOffer(offer: Offer) {
     const novu = new Novu(this.apiKey);
